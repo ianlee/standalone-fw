@@ -1,3 +1,7 @@
+src_net = "192.168.0.2/24"
+
+
+#DO NOT TOUCH!
 #remove all existing chains
 iptables -F
 #set policies to drop
