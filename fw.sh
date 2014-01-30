@@ -1,5 +1,5 @@
-src_net = "192.168.0.2/24"
-
+src_net="192.168.0.2/24"
+blockthese="192.168.0.1"
 
 #DO NOT TOUCH!
 #remove all existing chains
@@ -8,6 +8,18 @@ iptables -F
 iptables -P OUTPUT DROP
 iptables -P FORWARD DROP
 iptables -P INPUT DROP
+
+#block inbound traffic from specific IPs 
+iptables -N blockin
+iptables -A blockin -p tcp -s $blockthese -j DROP
+iptables -A INPUT -j blockin
+
+#block outbound traffic from specific IPs
+iptables -N blockout
+iptables -A blockout -p tcp -d $blockthese -j DROP
+iptables -A OUTPUT -j blockout
+
+
 
 #create udpin chain
 iptables -N udpin
