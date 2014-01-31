@@ -14,13 +14,13 @@ Listings:
 HOW-TO
 
 To start up the firewall, enter:
-	./fw.sh
+	. fw.sh
 
 To view the statistics of the firewall, enter:
-	iptables -L -n
+	iptables -L -n -v
 
 To turn off the firewall, enter:
-	./rfw.sh
+	. rfw.sh
 
 
 
