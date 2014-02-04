@@ -47,7 +47,9 @@ iptables -N blockout
 iptables -A blockout -o $INTERFACE -d $IP_BLOCK -j DROP
 iptables -A OUTPUT -j blockout
 
-
+#Accounting rules
+#iptables -N accounting
+#iptables -A accounting -i $INTERFACE -p tcp 
 
 #create udpin chain
 iptables -N udpin
