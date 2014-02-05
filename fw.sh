@@ -20,8 +20,8 @@ TCP_ALLOW_PORTS_IN="22,80,443" #from these ports (acting as a client)
 TCP_ALLOW_PORTS_OUT="22,80,443"
 UDP_ALLOW_PORTS_IN="0"
 UDP_ALLOW_PORTS_OUT="0"
-TCP_ALLOW_PORTS_IN_SERVER="80" #acting as server (allow connections to these ports)
-TCP_ALLOW_PORTS_OUT_SERVER="0"
+TCP_ALLOW_PORTS_IN_SERVER="80,22" #acting as server (allow connections to these ports)
+TCP_ALLOW_PORTS_OUT_SERVER="80,22"
 UDP_ALLOW_PORTS_IN_SERVER="0"
 UDP_ALLOW_PORTS_OUT_SERVER="0"
 
