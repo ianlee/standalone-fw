@@ -1,5 +1,3 @@
-src_net="192.168.0.0/24"
-
 #interface name
 INTERFACE="em1"
 
