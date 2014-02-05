@@ -35,27 +35,6 @@ iptables -P OUTPUT DROP
 iptables -P FORWARD DROP
 iptables -P INPUT DROP
 
-#block inbound traffic from specific IPs 
-iptables -N blockin
-iptables -A blockin -i $INTERFACE -s $IP_BLOCK -j DROP
-#block inbound traffic to and from specified ports
-iptables -A blockin -i $INTERFACE -p udp --sport $BLOCK_PORTS_IN -j DROP
-iptables -A blockin -i $INTERFACE -p udp --dport $BLOCK_PORTS_IN -j DROP
-iptables -A blockin -i $INTERFACE -p tcp --sport $BLOCK_PORTS_IN -j DROP
-iptables -A blockin -i $INTERFACE -p tcp --dport $BLOCK_PORTS_IN -j DROP
-
-iptables -A INPUT -j blockin
-
-#block outbound traffic from specific IPs
-iptables -N blockout
-iptables -A blockout -o $INTERFACE -d $IP_BLOCK -j DROP
-#block out bound to and from specified ports
-iptables -A blockout -o $INTERFACE -p udp --sport $BLOCK_PORTS_OUT -j DROP
-iptables -A blockout -o $INTERFACE -p udp --dport $BLOCK_PORTS_OUT -j DROP
-iptables -A blockout -o $INTERFACE -p tcp --sport $BLOCK_PORTS_OUT -j DROP
-iptables -A blockout -o $INTERFACE -p tcp --dport $BLOCK_PORTS_OUT -j DROP
-iptables -A OUTPUT -j blockout
-
 #Accounting rules for ssh, www, rest of traffic
 iptables -N accounting
 iptables -N wwwaccounting
@@ -75,11 +54,40 @@ iptables -A accounting -p tcp --sport 443 -j RETURN
 iptables -A accounting -p tcp --dport 443 -j RETURN
 iptables -A accounting -p tcp --sport 22 -j RETURN
 iptables -A accounting -p tcp --dport 22 -j RETURN
-#only rest traffic should still be in this chain
+#only rest traffic should still be in this chain. send this to rest of traffic chain
 iptables -A accounting -j restaccounting
+#add accounting chain to default filter chains
 iptables -A INPUT -j accounting
 iptables -A FORWARD -j accounting
 iptables -A OUTPUT -j accounting
+
+
+
+#chain for blocking Inbound traffic
+iptables -N blockin
+#block inbound traffic from specific IPs 
+iptables -A blockin -i $INTERFACE -s $IP_BLOCK -j DROP
+#block inbound traffic to and from specified ports
+iptables -A blockin -i $INTERFACE -p udp --sport $BLOCK_PORTS_IN -j DROP
+iptables -A blockin -i $INTERFACE -p udp --dport $BLOCK_PORTS_IN -j DROP
+iptables -A blockin -i $INTERFACE -p tcp --sport $BLOCK_PORTS_IN -j DROP
+iptables -A blockin -i $INTERFACE -p tcp --dport $BLOCK_PORTS_IN -j DROP
+#drop packets to port 80 from ports less than 1024
+iptables -A blockin -i $INTERFACE -p tcp --dport 80 -m multiport --sports 0:1023  -j DROP
+#add inbound blocking chain to input chain
+iptables -A INPUT -j blockin
+
+
+#block outbound traffic from specific IPs
+iptables -N blockout
+iptables -A blockout -o $INTERFACE -d $IP_BLOCK -j DROP
+#block out bound to and from specified ports
+iptables -A blockout -o $INTERFACE -p udp --sport $BLOCK_PORTS_OUT -j DROP
+iptables -A blockout -o $INTERFACE -p udp --dport $BLOCK_PORTS_OUT -j DROP
+iptables -A blockout -o $INTERFACE -p tcp --sport $BLOCK_PORTS_OUT -j DROP
+iptables -A blockout -o $INTERFACE -p tcp --dport $BLOCK_PORTS_OUT -j DROP
+#add outbound blocking chain to output chain
+iptables -A OUTPUT -j blockout
 
 #create udpin chain
 iptables -N udpin
@@ -88,29 +96,40 @@ iptables -A udpin -i $INTERFACE -p udp -m multiport --sports $DNS_PORT_IN,$DHCP_
 #allow inbound udp user defined traffic
 iptables -A udpin -i $INTERFACE -p udp -m multiport --sports $UDP_ALLOW_PORTS_IN -m state --state ESTABLISHED -j ACCEPT # acting as a client
 iptables -A udpin -i $INTERFACE -p udp -m multiport --dports $UDP_ALLOW_PORTS_IN_SERVER -m state --state NEW,ESTABLISHED -j ACCEPT # acting as a server
+#add inbound udp chain to default input chain
 iptables -A INPUT -p udp -j udpin
+
+
 #create tcpin chain
 iptables -N tcpin
-
-iptables -A tcpin -i $INTERFACE -p tcp --dport 80 -m multiport --sports 0:1023  -j DROP		#drop packets to port 80 from ports less than 1024
+#allow inbound dns and dhcp traffic
 iptables -A tcpin -i $INTERFACE -p tcp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
+#allow inbound user defined traffic
 iptables -A tcpin -i $INTERFACE -p tcp -m multiport --sports $TCP_ALLOW_PORTS_IN -m state --state ESTABLISHED -j ACCEPT # acting as a client
 iptables -A tcpin -i $INTERFACE -p tcp -m multiport --dports $TCP_ALLOW_PORTS_IN_SERVER -m state --state NEW,ESTABLISHED -j ACCEPT # acting as a server
+#add inbound tcp chain to default input chain
 iptables -A INPUT -p tcp -j tcpin
+
 
 #create udpout chain
 iptables -N udpout
-
+#allow outbound udp dns and dhcp traffic
 iptables -A udpout -o $INTERFACE -p udp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
+#allow outbound udp user defined traffic
 iptables -A udpout -o $INTERFACE -p udp -m multiport --dports $UDP_ALLOW_PORTS_OUT -m state --state NEW,ESTABLISHED -j ACCEPT # acting as a client
 iptables -A udpout -o $INTERFACE -p udp -m multiport --sports $UDP_ALLOW_PORTS_OUT_SERVER -m state --state ESTABLISHED -j ACCEPT # acting as a server
+#add outbound udp chain to default output chain
 iptables -A OUTPUT -p udp -j udpout
+
+
 #create tcpout chain
 iptables -N tcpout
-
+#allow outbound tcp dns and dhcp traffic
 iptables -A tcpout -o $INTERFACE -p tcp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
+#allow outbound tcp user defined traffic
 iptables -A tcpout -o $INTERFACE -p tcp -m multiport --dports $TCP_ALLOW_PORTS_OUT -m state --state NEW,ESTABLISHED -j ACCEPT # acting as a client
 iptables -A tcpout -o $INTERFACE -p tcp -m multiport --sports $TCP_ALLOW_PORTS_OUT_SERVER -m state --state ESTABLISHED -j ACCEPT # acting as a server
+#add outbound tcp chain to default output chain
 iptables -A OUTPUT -p tcp -j tcpout
 
 
