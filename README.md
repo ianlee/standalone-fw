@@ -17,7 +17,10 @@ To start up the firewall, enter:
 	. fw.sh
 
 To view the statistics of the firewall, enter:
-	iptables -L -n -v
+	iptables -L -n -v -x
+
+To zero out the statistices of the firewall, enter:
+	iptables -Z
 
 To turn off the firewall, enter:
 	. rfw.sh
