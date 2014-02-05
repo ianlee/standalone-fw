@@ -1,34 +1,48 @@
+##################################################################################
+#  Basic Linux Firewall
+#  fw.sh
+#  
+#  Author: Ian Lee    Date: February 4, 2014
+#
+#  Basic firewall using iptables program to configure Netfilter.
+#  
+#
+##################################################################################
+
+
+# USER DEFINES SECTION
+
 #interface name
 INTERFACE="em1"
 
 #Allowing ports(protocols)
 TCP_ALLOW_PORTS_IN="22,80,443" #from these ports (acting as a client)
 TCP_ALLOW_PORTS_OUT="22,80,443"
-TCP_ALLOW_PORTS_IN_SERVER="80" #acting as server (allow connections to these ports)
-TCP_ALLOW_PORTS_OUT_SERVER="0"
 UDP_ALLOW_PORTS_IN="0"
 UDP_ALLOW_PORTS_OUT="0"
+TCP_ALLOW_PORTS_IN_SERVER="80" #acting as server (allow connections to these ports)
+TCP_ALLOW_PORTS_OUT_SERVER="0"
 UDP_ALLOW_PORTS_IN_SERVER="0"
 UDP_ALLOW_PORTS_OUT_SERVER="0"
 
 
 #block traffic to and from these IP addresses
 IP_BLOCK=""
-#block these ports regardless of IP or protocol.
+#block these ports regardless of IP or protocol.  
 BLOCK_PORTS_IN="0"
 BLOCK_PORTS_OUT="0"
 
 
+# END OF USER DEFINES SECTION#####################################################
 
-
-#DO NOT TOUCH!
+# DO NOT TOUCH BELOW unless you know what you are doing!!! #######################
 #Allowing dns and dhcp ports.  you shouldn't touch these if you want your computer to work.
 DNS_PORT_IN="53"
 DNS_PORT_OUT="53"
 DHCP_PORT_IN="67"
 DHCP_PORT_OUT="68"
 
-#remove all existing chains
+#empty all existing chains
 iptables -F
 #set policies to drop
 iptables -P OUTPUT DROP
