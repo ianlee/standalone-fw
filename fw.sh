@@ -3,12 +3,12 @@ INTERFACE="em1"
 
 #Allowing ports(protocols)
 TCP_ALLOW_PORTS_IN="22,80,443" #from these ports (acting as a client)
-TCP_ALLOW_PORTS_IN_SERVER="80" #acting as server (allow connections to these ports)
 TCP_ALLOW_PORTS_OUT="22,80,443"
+TCP_ALLOW_PORTS_IN_SERVER="80" #acting as server (allow connections to these ports)
 TCP_ALLOW_PORTS_OUT_SERVER="0"
 UDP_ALLOW_PORTS_IN="0"
-UDP_ALLOW_PORTS_IN_SERVER="0"
 UDP_ALLOW_PORTS_OUT="0"
+UDP_ALLOW_PORTS_IN_SERVER="0"
 UDP_ALLOW_PORTS_OUT_SERVER="0"
 
 
@@ -61,21 +61,31 @@ iptables -N accounting
 iptables -N wwwaccounting
 iptables -N sshaccounting
 iptables -N restaccounting
+#not using interface so can be used for input and output 
 iptables -A accounting -p tcp --sport 80 -j wwwaccounting
 iptables -A accounting -p tcp --dport 80 -j wwwaccounting
 iptables -A accounting -p tcp --sport 443 -j wwwaccounting
 iptables -A accounting -p tcp --dport 443 -j wwwaccounting
 iptables -A accounting -p tcp --sport 22 -j sshaccounting
 iptables -A accounting -p tcp --dport 22 -j sshaccounting
-iptables -A accounting -p tcp ! --sport 80,22,443 ! --dport 80,22,443 -j restaccounting
+#if part of expected traffic, exit from this chain so that only  the rest of traffic goes into the restaccounting chain
+iptables -A accounting -p tcp --sport 80 -j RETURN
+iptables -A accounting -p tcp --dport 80 -j RETURN
+iptables -A accounting -p tcp --sport 443 -j RETURN
+iptables -A accounting -p tcp --dport 443 -j RETURN
+iptables -A accounting -p tcp --sport 22 -j RETURN
+iptables -A accounting -p tcp --dport 22 -j RETURN
+#only rest traffic should still be in this chain
+iptables -A accounting -j restaccounting
 iptables -A INPUT -j accounting
 iptables -A FORWARD -j accounting
 iptables -A OUTPUT -j accounting
 
 #create udpin chain
 iptables -N udpin
-
+#allow inbound dns and udp traffic
 iptables -A udpin -i $INTERFACE -p udp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
+#allow inbound udp user defined traffic
 iptables -A udpin -i $INTERFACE -p udp -m multiport --sports $UDP_ALLOW_PORTS_IN -m state --state ESTABLISHED -j ACCEPT # acting as a client
 iptables -A udpin -i $INTERFACE -p udp -m multiport --dports $UDP_ALLOW_PORTS_IN_SERVER -m state --state NEW,ESTABLISHED -j ACCEPT # acting as a server
 iptables -A INPUT -p udp -j udpin
