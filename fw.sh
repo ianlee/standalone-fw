@@ -66,7 +66,9 @@ iptables -A OUTPUT -j accounting
 #chain for blocking Inbound traffic
 iptables -N blockin
 #block inbound traffic from specific IPs 
+if[[ -n $IP_BLOCK ]]; then
 iptables -A blockin -i $INTERFACE -s $IP_BLOCK -j DROP
+fi
 #block inbound traffic to and from specified ports
 iptables -A blockin -i $INTERFACE -p udp --sport $BLOCK_PORTS_IN -j DROP
 iptables -A blockin -i $INTERFACE -p udp --dport $BLOCK_PORTS_IN -j DROP
@@ -80,7 +82,9 @@ iptables -A INPUT -j blockin
 
 #block outbound traffic from specific IPs
 iptables -N blockout
+if[[ -n $IP_BLOCK ]]; then
 iptables -A blockout -o $INTERFACE -d $IP_BLOCK -j DROP
+fi
 #block out bound to and from specified ports
 iptables -A blockout -o $INTERFACE -p udp --sport $BLOCK_PORTS_OUT -j DROP
 iptables -A blockout -o $INTERFACE -p udp --dport $BLOCK_PORTS_OUT -j DROP
