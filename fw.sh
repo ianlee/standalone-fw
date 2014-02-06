@@ -25,6 +25,8 @@ TCP_ALLOW_PORTS_OUT_SERVER="80,22"
 UDP_ALLOW_PORTS_IN_SERVER="0"
 UDP_ALLOW_PORTS_OUT_SERVER="0"
 
+ICMP_ALLOW_TYPES=""
+
 
 #block traffic to and from these IP addresses
 IP_BLOCK=""
@@ -76,6 +78,22 @@ iptables -A FORWARD -j accounting
 iptables -A OUTPUT -j accounting
 
 
+#DNS AND DHCP TRAFFIC
+iptables -N neccessitiesin
+iptables -A INPUT -j neccessitiesin
+iptables -N neccessitiesout
+iptables -A OUTPUT -j neccessitiesout
+iptables -A neccessitiesin
+#allow inbound dns and udp traffic
+iptables -A udpin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
+#allow inbound dns and dhcp traffic
+iptables -A tcpin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
+iptables -A neccessitiesout
+#allow outbound udp dns and dhcp traffic
+iptables -A udpout -o $EXTERNAL -i $INTERNAL -p udp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
+#allow outbound tcp dns and dhcp traffic
+iptables -A tcpout -o $EXTERNAL -i $INTERNAL -p tcp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
+
 
 #chain for blocking Inbound traffic
 iptables -N blockin
@@ -98,7 +116,7 @@ iptables -A FORWARD -j blockin
 #block outbound traffic from specific IPs
 iptables -N blockout
 if [[ -n $IP_BLOCK ]]; then
-iptables -A blockout -o $EXTERNAL -i $INTERNAL-d $IP_BLOCK -j DROP
+iptables -A blockout -o $EXTERNAL -i $INTERNAL -d $IP_BLOCK -j DROP
 fi
 #block out bound to and from specified ports
 iptables -A blockout -o $EXTERNAL -i $INTERNAL -p udp --sport $BLOCK_PORTS_OUT -j DROP
@@ -110,8 +128,7 @@ iptables -A FORWARD -j blockout
 
 #create udpin chain
 iptables -N udpin
-#allow inbound dns and udp traffic
-iptables -A udpin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
+
 #allow inbound udp user defined traffic
 iptables -A udpin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --sports $UDP_ALLOW_PORTS_IN -m state --state ESTABLISHED -j ACCEPT # acting as a client
 iptables -A udpin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --dports $UDP_ALLOW_PORTS_IN_SERVER -m state --state NEW,ESTABLISHED -j ACCEPT # acting as a server
@@ -121,8 +138,7 @@ iptables -A FORWARD -p udp -j udpin
 
 #create tcpin chain
 iptables -N tcpin
-#allow inbound dns and dhcp traffic
-iptables -A tcpin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
+
 #allow inbound user defined traffic
 iptables -A tcpin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --sports $TCP_ALLOW_PORTS_IN -m state --state ESTABLISHED -j ACCEPT # acting as a client
 iptables -A tcpin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --dports $TCP_ALLOW_PORTS_IN_SERVER -m state --state NEW,ESTABLISHED -j ACCEPT # acting as a server
@@ -132,8 +148,7 @@ iptables -A FORWARD -p tcp -j tcpin
 
 #create udpout chain
 iptables -N udpout
-#allow outbound udp dns and dhcp traffic
-iptables -A udpout -o $EXTERNAL -i $INTERNAL -p udp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
+
 #allow outbound udp user defined traffic
 iptables -A udpout -o $EXTERNAL -i $INTERNAL -p udp -m multiport --dports $UDP_ALLOW_PORTS_OUT -m state --state NEW,ESTABLISHED -j ACCEPT # acting as a client
 iptables -A udpout -o $EXTERNAL -i $INTERNAL -p udp -m multiport --sports $UDP_ALLOW_PORTS_OUT_SERVER -m state --state ESTABLISHED -j ACCEPT # acting as a server
@@ -143,8 +158,6 @@ iptables -A FORWARD -p udp -j udpout
 
 #create tcpout chain
 iptables -N tcpout
-#allow outbound tcp dns and dhcp traffic
-iptables -A tcpout -o $EXTERNAL -i $INTERNAL -p tcp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
 #allow outbound tcp user defined traffic
 iptables -A tcpout -o $EXTERNAL -i $INTERNAL -p tcp -m multiport --dports $TCP_ALLOW_PORTS_OUT -m state --state NEW,ESTABLISHED -j ACCEPT # acting as a client
 iptables -A tcpout -o $EXTERNAL -i $INTERNAL -p tcp -m multiport --sports $TCP_ALLOW_PORTS_OUT_SERVER -m state --state ESTABLISHED -j ACCEPT # acting as a server
