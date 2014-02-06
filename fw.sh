@@ -13,8 +13,8 @@
 # USER DEFINES SECTION
 
 #interface name
-INTERFACE="em1"
-
+EXTERNAL="em1"
+INTERNAL="p3p1"
 #Allowing ports(protocols)
 TCP_ALLOW_PORTS_IN="22,80,443" #from these ports (acting as a client)
 TCP_ALLOW_PORTS_OUT="22,80,443"
@@ -81,75 +81,75 @@ iptables -A OUTPUT -j accounting
 iptables -N blockin
 #block inbound traffic from specific IPs 
 if [[ -n $IP_BLOCK ]]; then
-iptables -A blockin -i $INTERFACE -s $IP_BLOCK -j DROP
+iptables -A blockin -i $EXTERNAL -o $INTERNAL -s $IP_BLOCK -j DROP
 fi
 #block inbound traffic to and from specified ports
-iptables -A blockin -i $INTERFACE -p udp --sport $BLOCK_PORTS_IN -j DROP
-iptables -A blockin -i $INTERFACE -p udp --dport $BLOCK_PORTS_IN -j DROP
-iptables -A blockin -i $INTERFACE -p tcp --sport $BLOCK_PORTS_IN -j DROP
-iptables -A blockin -i $INTERFACE -p tcp --dport $BLOCK_PORTS_IN -j DROP
+iptables -A blockin -i $EXTERNAL -o $INTERNAL -p udp --sport $BLOCK_PORTS_IN -j DROP
+iptables -A blockin -i $EXTERNAL -o $INTERNAL -p udp --dport $BLOCK_PORTS_IN -j DROP
+iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp --sport $BLOCK_PORTS_IN -j DROP
+iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp --dport $BLOCK_PORTS_IN -j DROP
 #drop packets to port 80 from ports less than 1024
-iptables -A blockin -i $INTERFACE -p tcp -m multiport --sports 0:1023 -m state --state NEW -j DROP
+iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --sports 0:1023 -m state --state NEW -j DROP
 
 #add inbound blocking chain to input chain
-iptables -A INPUT -j blockin
+iptables -A FORWARD -j blockin
 
 
 #block outbound traffic from specific IPs
 iptables -N blockout
 if [[ -n $IP_BLOCK ]]; then
-iptables -A blockout -o $INTERFACE -d $IP_BLOCK -j DROP
+iptables -A blockout -o $EXTERNAL -i $INTERNAL-d $IP_BLOCK -j DROP
 fi
 #block out bound to and from specified ports
-iptables -A blockout -o $INTERFACE -p udp --sport $BLOCK_PORTS_OUT -j DROP
-iptables -A blockout -o $INTERFACE -p udp --dport $BLOCK_PORTS_OUT -j DROP
-iptables -A blockout -o $INTERFACE -p tcp --sport $BLOCK_PORTS_OUT -j DROP
-iptables -A blockout -o $INTERFACE -p tcp --dport $BLOCK_PORTS_OUT -j DROP
+iptables -A blockout -o $EXTERNAL -i $INTERNAL -p udp --sport $BLOCK_PORTS_OUT -j DROP
+iptables -A blockout -o $EXTERNAL -i $INTERNAL -p udp --dport $BLOCK_PORTS_OUT -j DROP
+iptables -A blockout -o $EXTERNAL -i $INTERNAL -p tcp --sport $BLOCK_PORTS_OUT -j DROP
+iptables -A blockout -o $EXTERNAL -i $INTERNAL -p tcp --dport $BLOCK_PORTS_OUT -j DROP
 #add outbound blocking chain to output chain
-iptables -A OUTPUT -j blockout
+iptables -A FORWARD -j blockout
 
 #create udpin chain
 iptables -N udpin
 #allow inbound dns and udp traffic
-iptables -A udpin -i $INTERFACE -p udp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
+iptables -A udpin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
 #allow inbound udp user defined traffic
-iptables -A udpin -i $INTERFACE -p udp -m multiport --sports $UDP_ALLOW_PORTS_IN -m state --state ESTABLISHED -j ACCEPT # acting as a client
-iptables -A udpin -i $INTERFACE -p udp -m multiport --dports $UDP_ALLOW_PORTS_IN_SERVER -m state --state NEW,ESTABLISHED -j ACCEPT # acting as a server
+iptables -A udpin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --sports $UDP_ALLOW_PORTS_IN -m state --state ESTABLISHED -j ACCEPT # acting as a client
+iptables -A udpin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --dports $UDP_ALLOW_PORTS_IN_SERVER -m state --state NEW,ESTABLISHED -j ACCEPT # acting as a server
 #add inbound udp chain to default input chain
-iptables -A INPUT -p udp -j udpin
+iptables -A FORWARD -p udp -j udpin
 
 
 #create tcpin chain
 iptables -N tcpin
 #allow inbound dns and dhcp traffic
-iptables -A tcpin -i $INTERFACE -p tcp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
+iptables -A tcpin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
 #allow inbound user defined traffic
-iptables -A tcpin -i $INTERFACE -p tcp -m multiport --sports $TCP_ALLOW_PORTS_IN -m state --state ESTABLISHED -j ACCEPT # acting as a client
-iptables -A tcpin -i $INTERFACE -p tcp -m multiport --dports $TCP_ALLOW_PORTS_IN_SERVER -m state --state NEW,ESTABLISHED -j ACCEPT # acting as a server
+iptables -A tcpin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --sports $TCP_ALLOW_PORTS_IN -m state --state ESTABLISHED -j ACCEPT # acting as a client
+iptables -A tcpin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --dports $TCP_ALLOW_PORTS_IN_SERVER -m state --state NEW,ESTABLISHED -j ACCEPT # acting as a server
 #add inbound tcp chain to default input chain
-iptables -A INPUT -p tcp -j tcpin
+iptables -A FORWARD -p tcp -j tcpin
 
 
 #create udpout chain
 iptables -N udpout
 #allow outbound udp dns and dhcp traffic
-iptables -A udpout -o $INTERFACE -p udp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
+iptables -A udpout -o $EXTERNAL -i $INTERNAL -p udp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
 #allow outbound udp user defined traffic
-iptables -A udpout -o $INTERFACE -p udp -m multiport --dports $UDP_ALLOW_PORTS_OUT -m state --state NEW,ESTABLISHED -j ACCEPT # acting as a client
-iptables -A udpout -o $INTERFACE -p udp -m multiport --sports $UDP_ALLOW_PORTS_OUT_SERVER -m state --state ESTABLISHED -j ACCEPT # acting as a server
+iptables -A udpout -o $EXTERNAL -i $INTERNAL -p udp -m multiport --dports $UDP_ALLOW_PORTS_OUT -m state --state NEW,ESTABLISHED -j ACCEPT # acting as a client
+iptables -A udpout -o $EXTERNAL -i $INTERNAL -p udp -m multiport --sports $UDP_ALLOW_PORTS_OUT_SERVER -m state --state ESTABLISHED -j ACCEPT # acting as a server
 #add outbound udp chain to default output chain
-iptables -A OUTPUT -p udp -j udpout
+iptables -A FORWARD -p udp -j udpout
 
 
 #create tcpout chain
 iptables -N tcpout
 #allow outbound tcp dns and dhcp traffic
-iptables -A tcpout -o $INTERFACE -p tcp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
+iptables -A tcpout -o $EXTERNAL -i $INTERNAL -p tcp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
 #allow outbound tcp user defined traffic
-iptables -A tcpout -o $INTERFACE -p tcp -m multiport --dports $TCP_ALLOW_PORTS_OUT -m state --state NEW,ESTABLISHED -j ACCEPT # acting as a client
-iptables -A tcpout -o $INTERFACE -p tcp -m multiport --sports $TCP_ALLOW_PORTS_OUT_SERVER -m state --state ESTABLISHED -j ACCEPT # acting as a server
+iptables -A tcpout -o $EXTERNAL -i $INTERNAL -p tcp -m multiport --dports $TCP_ALLOW_PORTS_OUT -m state --state NEW,ESTABLISHED -j ACCEPT # acting as a client
+iptables -A tcpout -o $EXTERNAL -i $INTERNAL -p tcp -m multiport --sports $TCP_ALLOW_PORTS_OUT_SERVER -m state --state ESTABLISHED -j ACCEPT # acting as a server
 #add outbound tcp chain to default output chain
-iptables -A OUTPUT -p tcp -j tcpout
+iptables -A FORWARD -p tcp -j tcpout
 
 
 
