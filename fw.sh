@@ -80,7 +80,7 @@ iptables -A OUTPUT -j accounting
 #chain for blocking Inbound traffic
 iptables -N blockin
 #block inbound traffic from specific IPs 
-if[[ -n $IP_BLOCK ]]; then
+if [[ -n $IP_BLOCK ]]; then
 iptables -A blockin -i $INTERFACE -s $IP_BLOCK -j DROP
 fi
 #block inbound traffic to and from specified ports
@@ -89,14 +89,15 @@ iptables -A blockin -i $INTERFACE -p udp --dport $BLOCK_PORTS_IN -j DROP
 iptables -A blockin -i $INTERFACE -p tcp --sport $BLOCK_PORTS_IN -j DROP
 iptables -A blockin -i $INTERFACE -p tcp --dport $BLOCK_PORTS_IN -j DROP
 #drop packets to port 80 from ports less than 1024
-iptables -A blockin -i $INTERFACE -p tcp --dport 80 -m multiport --sports 0:1023  -j DROP
+iptables -A blockin -i $INTERFACE -p tcp -m multiport --sports 0:1023 -m state --state NEW -j DROP
+
 #add inbound blocking chain to input chain
 iptables -A INPUT -j blockin
 
 
 #block outbound traffic from specific IPs
 iptables -N blockout
-if[[ -n $IP_BLOCK ]]; then
+if [[ -n $IP_BLOCK ]]; then
 iptables -A blockout -o $INTERFACE -d $IP_BLOCK -j DROP
 fi
 #block out bound to and from specified ports
