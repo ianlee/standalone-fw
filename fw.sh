@@ -86,20 +86,20 @@ iptables -N necessitiesin
 iptables -A INPUT -j necessitiesin
 iptables -N necessitiesout
 iptables -A OUTPUT -j necessitiesout
-iptables -A necessitiesin
+iptables -N necessitiesforward
+iptables -A FORWARD -j necessitiesforward
 #allow inbound dns and udp traffic
 iptables -A necessitiesin -i $EXTERNAL -p udp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
-#iptables -A udpin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
+iptables -A necessitiesforward -i $EXTERNAL -o $INTERNAL -p udp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
 #allow inbound dns and dhcp traffic
 iptables -A necessitiesin -i $EXTERNAL -p tcp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
-#iptables -A tcpin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
-iptables -A necessitiesout
+iptables -A necessitiesforward -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
 #allow outbound udp dns and dhcp traffic
 iptables -A necessitiesout -o $EXTERNAL -p udp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
-#iptables -A udpout -o $EXTERNAL -i $INTERNAL -p udp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
+iptables -A  necessitiesforward -o $EXTERNAL -i $INTERNAL -p udp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
 #allow outbound tcp dns and dhcp traffic
 iptables -A necessitiesout -o $EXTERNAL -p tcp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
-#iptables -A tcpout -o $EXTERNAL -i $INTERNAL -p tcp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
+iptables -A  necessitiesforward -o $EXTERNAL -i $INTERNAL -p tcp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
 
 
 #chain for blocking Inbound traffic
@@ -108,6 +108,10 @@ iptables -N blockin
 if [[ -n $IP_BLOCK ]]; then
 iptables -A blockin -i $EXTERNAL -o $INTERNAL -s $IP_BLOCK -j DROP
 fi
+#block inbound traffic from a source address from the outside matching your internal network.
+iptables -A blockin -i $EXTERNAL -o $INTERNAL -s $INTERNAL_NETWORK -j DROP
+#OR??????????????????
+iptables -A blockin -i $EXTERNAL -o $INTERNAL ! -s $EXTERNAL_NETWORK -j DROP
 #block inbound traffic to and from specified ports
 iptables -A blockin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --sports $BLOCK_PORTS_IN -j DROP
 iptables -A blockin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --dports $BLOCK_PORTS_IN -j DROP
@@ -126,6 +130,7 @@ iptables -N blockout
 if [[ -n $IP_BLOCK ]]; then
 iptables -A blockout -o $EXTERNAL -i $INTERNAL -d $IP_BLOCK -j DROP
 fi
+iptables -A blockin -o $EXTERNAL -i $INTERNAL ! -s $INTERNAL_NETWORK -j DROP
 #block out bound to and from specified ports
 iptables -A blockout -o $EXTERNAL -i $INTERNAL -p udp --sport $BLOCK_PORTS_OUT -j DROP
 iptables -A blockout -o $EXTERNAL -i $INTERNAL -p udp --dport $BLOCK_PORTS_OUT -j DROP
