@@ -2,7 +2,8 @@
 #  Basic Linux Firewall
 #  fw.sh
 #  
-#  Author: Ian Lee    Date: February 4, 2014
+#  Author: Ian Lee    Luke Tao
+#  Date: February 20, 2014
 #
 #  Basic firewall using iptables program to configure Netfilter.
 #  
@@ -14,7 +15,9 @@
 
 #interface name
 EXTERNAL="em1"
+EXTERNAL_NETWORK="192.168.0.0/24"
 INTERNAL="p3p1"
+INTERNAL_NETWORK="192.168.10.0/24"
 #Allowing ports(protocols)
 TCP_ALLOW_PORTS_IN="22,80,443" #from these ports (acting as a client)
 TCP_ALLOW_PORTS_OUT="22,80,443"
@@ -78,21 +81,25 @@ iptables -A FORWARD -j accounting
 iptables -A OUTPUT -j accounting
 
 
-#DNS AND DHCP TRAFFIC
-iptables -N neccessitiesin
-iptables -A INPUT -j neccessitiesin
-iptables -N neccessitiesout
-iptables -A OUTPUT -j neccessitiesout
-iptables -A neccessitiesin
+#DNS AND DHCP TRAFFIC for firewall
+iptables -N necessitiesin
+iptables -A INPUT -j necessitiesin
+iptables -N necessitiesout
+iptables -A OUTPUT -j necessitiesout
+iptables -A necessitiesin
 #allow inbound dns and udp traffic
-iptables -A udpin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
+iptables -A necessitiesin -i $EXTERNAL -p udp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
+#iptables -A udpin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
 #allow inbound dns and dhcp traffic
-iptables -A tcpin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
-iptables -A neccessitiesout
+iptables -A necessitiesin -i $EXTERNAL -p tcp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
+#iptables -A tcpin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
+iptables -A necessitiesout
 #allow outbound udp dns and dhcp traffic
-iptables -A udpout -o $EXTERNAL -i $INTERNAL -p udp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
+iptables -A necessitiesout -o $EXTERNAL -p udp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
+#iptables -A udpout -o $EXTERNAL -i $INTERNAL -p udp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
 #allow outbound tcp dns and dhcp traffic
-iptables -A tcpout -o $EXTERNAL -i $INTERNAL -p tcp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
+iptables -A necessitiesout -o $EXTERNAL -p tcp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
+#iptables -A tcpout -o $EXTERNAL -i $INTERNAL -p tcp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
 
 
 #chain for blocking Inbound traffic
@@ -102,12 +109,13 @@ if [[ -n $IP_BLOCK ]]; then
 iptables -A blockin -i $EXTERNAL -o $INTERNAL -s $IP_BLOCK -j DROP
 fi
 #block inbound traffic to and from specified ports
-iptables -A blockin -i $EXTERNAL -o $INTERNAL -p udp --sport $BLOCK_PORTS_IN -j DROP
-iptables -A blockin -i $EXTERNAL -o $INTERNAL -p udp --dport $BLOCK_PORTS_IN -j DROP
-iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp --sport $BLOCK_PORTS_IN -j DROP
-iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp --dport $BLOCK_PORTS_IN -j DROP
-#drop packets to port 80 from ports less than 1024
+iptables -A blockin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --sports $BLOCK_PORTS_IN -j DROP
+iptables -A blockin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --dports $BLOCK_PORTS_IN -j DROP
+iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --sports $BLOCK_PORTS_IN -j DROP
+iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --dports $BLOCK_PORTS_IN -j DROP
+#drop SYN packets from ports less than 1024
 iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --sports 0:1023 -m state --state NEW -j DROP
+iptables -A blockin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --sports 0:1023 -m state --state NEW -j DROP
 
 #add inbound blocking chain to input chain
 iptables -A FORWARD -j blockin
@@ -123,6 +131,9 @@ iptables -A blockout -o $EXTERNAL -i $INTERNAL -p udp --sport $BLOCK_PORTS_OUT -
 iptables -A blockout -o $EXTERNAL -i $INTERNAL -p udp --dport $BLOCK_PORTS_OUT -j DROP
 iptables -A blockout -o $EXTERNAL -i $INTERNAL -p tcp --sport $BLOCK_PORTS_OUT -j DROP
 iptables -A blockout -o $EXTERNAL -i $INTERNAL -p tcp --dport $BLOCK_PORTS_OUT -j DROP
+#drop SYN packets from ports less than 1024
+iptables -A blockout -o $EXTERNAL -i $INTERNAL -p tcp -m multiport --sports 0:1023 -m state --state NEW -j DROP
+iptables -A blockout -o $EXTERNAL -i $INTERNAL -p udp -m multiport --sports 0:1023 -m state --state NEW -j DROP
 #add outbound blocking chain to output chain
 iptables -A FORWARD -j blockout
 
