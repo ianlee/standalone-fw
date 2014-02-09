@@ -34,13 +34,17 @@ ICMP_ALLOW_TYPES=""
 #block traffic to and from these IP addresses
 IP_BLOCK=""
 #block these ports regardless of IP or protocol.  
-BLOCK_PORTS_IN="0"
-BLOCK_PORTS_OUT="0"
+BLOCK_PORTS_IN="0,23"
+BLOCK_PORTS_OUT="0,23"
+
+MAXIMIZE_THROUGHPUT="20"
+MINIMIZE_DELAY="21,22"
 
 
 # END OF USER DEFINES SECTION#####################################################
 
 # DO NOT TOUCH BELOW unless you know what you are doing!!! #######################
+#################################################################################
 #Allowing dns and dhcp ports.  you shouldn't touch these if you want your computer to work.
 DNS_PORT_IN="53"
 DNS_PORT_OUT="53"
@@ -48,7 +52,10 @@ DHCP_PORT_IN="67"
 DHCP_PORT_OUT="68"
 
 #empty all existing chains
-iptables -F
+iptables -t filter -F
+iptables -t mangle -F
+iptables -t nat -F
+
 #set policies to drop
 iptables -P OUTPUT DROP
 iptables -P FORWARD DROP
@@ -79,6 +86,14 @@ iptables -A accounting -j restaccounting
 iptables -A INPUT -j accounting
 iptables -A FORWARD -j accounting
 iptables -A OUTPUT -j accounting
+
+#NAT
+iptables -t nat -A POSTROUTING -o $EXTERNAL -j MASQUERADE
+#MANGLE
+iptables -t mangle -A PREROUTING -p tcp --sport $MINIMIZE_DELAY -j TOS --set-tos Minimize-Delay
+iptables -t mangle -A PREROUTING -p tcp --sport $MAXIMIZE_THROUGHPUT -j TOS --set-tos Maximize-Throughput
+iptables -t mangle -A PREROUTING -p tcp --dport $MINIMIZE_DELAY -j TOS --set-tos Minimize-Delay
+iptables -t mangle -A PREROUTING -p tcp --dport $MAXIMIZE_THROUGHPUT -j TOS --set-tos Maximize-Throughput
 
 
 #DNS AND DHCP TRAFFIC for firewall
@@ -111,7 +126,12 @@ fi
 #block inbound traffic from a source address from the outside matching your internal network.
 iptables -A blockin -i $EXTERNAL -o $INTERNAL -s $INTERNAL_NETWORK -j DROP
 #OR??????????????????
-iptables -A blockin -i $EXTERNAL -o $INTERNAL ! -s $EXTERNAL_NETWORK -j DROP
+#iptables -A blockin -i $EXTERNAL -o $INTERNAL ! -s $EXTERNAL_NETWORK -j DROP
+
+
+#block syn and fin bits.  Refer to http://www.smythies.com/~doug/network/iptables_syn/index.html
+iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp ! --syn -m state --state NEW -j DROP
+
 #block inbound traffic to and from specified ports
 iptables -A blockin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --sports $BLOCK_PORTS_IN -j DROP
 iptables -A blockin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --dports $BLOCK_PORTS_IN -j DROP
@@ -120,6 +140,9 @@ iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --dports $BLOC
 #drop SYN packets from ports less than 1024
 iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --sports 0:1023 -m state --state NEW -j DROP
 iptables -A blockin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --sports 0:1023 -m state --state NEW -j DROP
+#Block all external traffic directed to ports 32768 – 32775, 137 – 139, TCP ports 111 and 515. 
+iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport -dports 32768:32775,137:139,111:515 -j DROP
+iptables -A blockin -i $EXTERNAL -o $INTERNAL -p udp -m multiport -dports 32768:32775,137:139 -j DROP
 
 #add inbound blocking chain to input chain
 iptables -A FORWARD -j blockin
@@ -131,6 +154,9 @@ if [[ -n $IP_BLOCK ]]; then
 iptables -A blockout -o $EXTERNAL -i $INTERNAL -d $IP_BLOCK -j DROP
 fi
 iptables -A blockin -o $EXTERNAL -i $INTERNAL ! -s $INTERNAL_NETWORK -j DROP
+#block syn and fin bits. refer to  http://www.smythies.com/~doug/network/iptables_syn/index.html
+iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp ! --syn -m state --state NEW -j DROP
+
 #block out bound to and from specified ports
 iptables -A blockout -o $EXTERNAL -i $INTERNAL -p udp --sport $BLOCK_PORTS_OUT -j DROP
 iptables -A blockout -o $EXTERNAL -i $INTERNAL -p udp --dport $BLOCK_PORTS_OUT -j DROP
