@@ -34,8 +34,8 @@ hping3 $IP -c 5 > $BASEFILE$CASE
 CASE=10
 hping3 $IP -c 5 > $BASEFILE$CASE
 #testcase11
-CASE=11
-hping3 $IP -c 5 > $BASEFILE$CASE
+CASE=11	
+hping3 $IP -c 5 -s 23 --keep > $BASEFILE$CASE
 #testcase12
 CASE=12
 hping3 $IP -c 5 > $BASEFILE$CASE
