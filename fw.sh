@@ -62,30 +62,30 @@ iptables -P FORWARD DROP
 iptables -P INPUT DROP
 
 #Accounting rules for ssh, www, rest of traffic
-iptables -N accounting
-iptables -N wwwaccounting
-iptables -N sshaccounting
-iptables -N restaccounting
+#iptables -N accounting
+#iptables -N accountingwww
+#iptables -N accountingssh
+#iptables -N accountingrest
 #not using interface so can be used for input and output 
-iptables -A accounting -p tcp --sport 80 -j wwwaccounting
-iptables -A accounting -p tcp --dport 80 -j wwwaccounting
-iptables -A accounting -p tcp --sport 443 -j wwwaccounting
-iptables -A accounting -p tcp --dport 443 -j wwwaccounting
-iptables -A accounting -p tcp --sport 22 -j sshaccounting
-iptables -A accounting -p tcp --dport 22 -j sshaccounting
-#if part of expected traffic, exit from this chain so that only  the rest of traffic goes into the restaccounting chain
-iptables -A accounting -p tcp --sport 80 -j RETURN
-iptables -A accounting -p tcp --dport 80 -j RETURN
-iptables -A accounting -p tcp --sport 443 -j RETURN
-iptables -A accounting -p tcp --dport 443 -j RETURN
-iptables -A accounting -p tcp --sport 22 -j RETURN
-iptables -A accounting -p tcp --dport 22 -j RETURN
+#iptables -A accounting -p tcp --sport 80 -j accountingwww
+#iptables -A accounting -p tcp --dport 80 -j accountingwww
+#iptables -A accounting -p tcp --sport 443 -j accountingwww
+#iptables -A accounting -p tcp --dport 443 -j accountingwww
+#iptables -A accounting -p tcp --sport 22 -j accountingssh
+#iptables -A accounting -p tcp --dport 22 -j accountingssh
+#if part of expected traffic, exit from this chain so that only  the rest of traffic goes into the accountingrest chain
+#iptables -A accounting -p tcp --sport 80 -j RETURN
+#iptables -A accounting -p tcp --dport 80 -j RETURN
+#iptables -A accounting -p tcp --sport 443 -j RETURN
+#iptables -A accounting -p tcp --dport 443 -j RETURN
+#iptables -A accounting -p tcp --sport 22 -j RETURN
+#iptables -A accounting -p tcp --dport 22 -j RETURN
 #only rest traffic should still be in this chain. send this to rest of traffic chain
-iptables -A accounting -j restaccounting
+#iptables -A accounting -j accountingrest
 #add accounting chain to default filter chains
-iptables -A INPUT -j accounting
-iptables -A FORWARD -j accounting
-iptables -A OUTPUT -j accounting
+#iptables -A INPUT -j accounting
+#iptables -A FORWARD -j accounting
+#iptables -A OUTPUT -j accounting
 
 #NAT
 iptables -t nat -A POSTROUTING -o $EXTERNAL -j MASQUERADE
@@ -141,7 +141,7 @@ iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --dports $BLOC
 iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --sports 0:1023 -m state --state NEW -j DROP
 iptables -A blockin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --sports 0:1023 -m state --state NEW -j DROP
 #Block all external traffic directed to ports 32768 – 32775, 137 – 139, TCP ports 111 and 515. 
-iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --dports 32768:32775,137:139,111:515 -j DROP
+iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --dports 32768:32775,137:139,111,515 -j DROP
 iptables -A blockin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --dports 32768:32775,137:139 -j DROP
 
 #add inbound blocking chain to input chain
