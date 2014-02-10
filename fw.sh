@@ -23,6 +23,9 @@ TCP_ALLOW_PORTS_IN="22,80,443" #from these ports (acting as a client)
 TCP_ALLOW_PORTS_OUT="22,80,443"
 UDP_ALLOW_PORTS_IN="0"
 UDP_ALLOW_PORTS_OUT="0"
+
+#internal server ip
+INTERNAL_SERVER_IP="192.168.10.2"
 TCP_ALLOW_PORTS_IN_SERVER="80,22" #acting as server (allow connections to these ports)
 TCP_ALLOW_PORTS_OUT_SERVER="80,22"
 UDP_ALLOW_PORTS_IN_SERVER="0"
@@ -87,8 +90,12 @@ iptables -P INPUT DROP
 #iptables -A FORWARD -j accounting
 #iptables -A OUTPUT -j accounting
 
-#NAT
+#SNAT
 iptables -t nat -A POSTROUTING -o $EXTERNAL -j MASQUERADE
+#DNAT
+iptables -t nat -A PREROUTING -i $EXTERNAL -p tcp -m multiport --dports TCP_ALLOW_PORTS_IN_SERVER -j DNAT --to $INTERNAL_SERVER_IP
+iptables -t nat -A PREROUTING -i $EXTERNAL -p udp -m multiport --dports UDP_ALLOW_PORTS_IN_SERVER -j DNAT --to $INTERNAL_SERVER_IP
+
 #MANGLE
 iptables -t mangle -A PREROUTING -p tcp -m multiport --sports $MINIMIZE_DELAY -j TOS --set-tos Minimize-Delay
 iptables -t mangle -A PREROUTING -p tcp -m multiport --sports $MAXIMIZE_THROUGHPUT -j TOS --set-tos Maximize-Throughput
