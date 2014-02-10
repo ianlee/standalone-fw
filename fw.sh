@@ -28,7 +28,7 @@ TCP_ALLOW_PORTS_OUT_SERVER="80,22"
 UDP_ALLOW_PORTS_IN_SERVER="0"
 UDP_ALLOW_PORTS_OUT_SERVER="0"
 
-ICMP_ALLOW_TYPES=""
+ICMP_ALLOW_TYPES="0,8"
 
 
 #block traffic to and from these IP addresses
@@ -90,10 +90,10 @@ iptables -A OUTPUT -j accounting
 #NAT
 iptables -t nat -A POSTROUTING -o $EXTERNAL -j MASQUERADE
 #MANGLE
-iptables -t mangle -A PREROUTING -p tcp --sport $MINIMIZE_DELAY -j TOS --set-tos Minimize-Delay
-iptables -t mangle -A PREROUTING -p tcp --sport $MAXIMIZE_THROUGHPUT -j TOS --set-tos Maximize-Throughput
-iptables -t mangle -A PREROUTING -p tcp --dport $MINIMIZE_DELAY -j TOS --set-tos Minimize-Delay
-iptables -t mangle -A PREROUTING -p tcp --dport $MAXIMIZE_THROUGHPUT -j TOS --set-tos Maximize-Throughput
+iptables -t mangle -A PREROUTING -p tcp -m multiport --sports $MINIMIZE_DELAY -j TOS --set-tos Minimize-Delay
+iptables -t mangle -A PREROUTING -p tcp -m multiport --sports $MAXIMIZE_THROUGHPUT -j TOS --set-tos Maximize-Throughput
+iptables -t mangle -A PREROUTING -p tcp -m multiport --dports $MINIMIZE_DELAY -j TOS --set-tos Minimize-Delay
+iptables -t mangle -A PREROUTING -p tcp -m multiport --dports $MAXIMIZE_THROUGHPUT -j TOS --set-tos Maximize-Throughput
 
 
 #DNS AND DHCP TRAFFIC for firewall
@@ -141,8 +141,8 @@ iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --dports $BLOC
 iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --sports 0:1023 -m state --state NEW -j DROP
 iptables -A blockin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --sports 0:1023 -m state --state NEW -j DROP
 #Block all external traffic directed to ports 32768 – 32775, 137 – 139, TCP ports 111 and 515. 
-iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport -dports 32768:32775,137:139,111:515 -j DROP
-iptables -A blockin -i $EXTERNAL -o $INTERNAL -p udp -m multiport -dports 32768:32775,137:139 -j DROP
+iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --dports 32768:32775,137:139,111:515 -j DROP
+iptables -A blockin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --dports 32768:32775,137:139 -j DROP
 
 #add inbound blocking chain to input chain
 iptables -A FORWARD -j blockin
@@ -153,20 +153,33 @@ iptables -N blockout
 if [[ -n $IP_BLOCK ]]; then
 iptables -A blockout -o $EXTERNAL -i $INTERNAL -d $IP_BLOCK -j DROP
 fi
-iptables -A blockin -o $EXTERNAL -i $INTERNAL ! -s $INTERNAL_NETWORK -j DROP
+iptables -A blockout -o $EXTERNAL -i $INTERNAL ! -s $INTERNAL_NETWORK -j DROP
 #block syn and fin bits. refer to  http://www.smythies.com/~doug/network/iptables_syn/index.html
-iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp ! --syn -m state --state NEW -j DROP
+iptables -A blockout -o $EXTERNAL -i $INTERNAL -p tcp ! --syn -m state --state NEW -j DROP
 
 #block out bound to and from specified ports
-iptables -A blockout -o $EXTERNAL -i $INTERNAL -p udp --sport $BLOCK_PORTS_OUT -j DROP
-iptables -A blockout -o $EXTERNAL -i $INTERNAL -p udp --dport $BLOCK_PORTS_OUT -j DROP
-iptables -A blockout -o $EXTERNAL -i $INTERNAL -p tcp --sport $BLOCK_PORTS_OUT -j DROP
-iptables -A blockout -o $EXTERNAL -i $INTERNAL -p tcp --dport $BLOCK_PORTS_OUT -j DROP
+iptables -A blockout -o $EXTERNAL -i $INTERNAL -p udp -m multiport --sports $BLOCK_PORTS_OUT -j DROP
+iptables -A blockout -o $EXTERNAL -i $INTERNAL -p udp -m multiport --dports $BLOCK_PORTS_OUT -j DROP
+iptables -A blockout -o $EXTERNAL -i $INTERNAL -p tcp -m multiport --sports $BLOCK_PORTS_OUT -j DROP
+iptables -A blockout -o $EXTERNAL -i $INTERNAL -p tcp -m multiport --dports $BLOCK_PORTS_OUT -j DROP
 #drop SYN packets from ports less than 1024
 iptables -A blockout -o $EXTERNAL -i $INTERNAL -p tcp -m multiport --sports 0:1023 -m state --state NEW -j DROP
 iptables -A blockout -o $EXTERNAL -i $INTERNAL -p udp -m multiport --sports 0:1023 -m state --state NEW -j DROP
 #add outbound blocking chain to output chain
 iptables -A FORWARD -j blockout
+
+
+#ICMP Chain
+iptables -N icmpin
+arr=$(echo $ICMP_ALLOW_TYPES | tr "," "\n")
+for x in $arr
+do
+    iptables -A icmpin -p icmp --icmp-type $x -m state --state NEW,ESTABLISHED -j ACCEPT
+done
+iptables -A FORWARD -p icmp -j icmpin
+
+
+
 
 #create udpin chain
 iptables -N udpin
@@ -176,7 +189,6 @@ iptables -A udpin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --sports $UDP_AL
 iptables -A udpin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --dports $UDP_ALLOW_PORTS_IN_SERVER -m state --state NEW,ESTABLISHED -j ACCEPT # acting as a server
 #add inbound udp chain to default input chain
 iptables -A FORWARD -p udp -j udpin
-
 
 #create tcpin chain
 iptables -N tcpin
