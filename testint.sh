@@ -1,6 +1,7 @@
 #testing firewall from an internal source.
 
-IP="192.168.0.3"
+#IP="192.168.0.3"
+IP="google.ca"
 BASEFILE="tests/test"
 CASE=1
 
@@ -32,7 +33,7 @@ CASE=9
 hping3 $IP -c 5 > $BASEFILE$CASE
 #testcase10
 CASE=10
-hping3 $IP -c 5 > $BASEFILE$CASE
+hping3 $IP -p 80 -c 5 -S -F > $BASEFILE$CASE
 #testcase11
 CASE=11	
 hping3 $IP -c 5 -s 23 --keep > $BASEFILE$CASE
