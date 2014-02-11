@@ -21,8 +21,8 @@ INTERNAL_NETWORK="192.168.10.0/24"
 #Allowing ports(protocols)
 TCP_ALLOW_PORTS_IN="22,80,443" #from these ports (acting as a client)
 TCP_ALLOW_PORTS_OUT="22,80,443"
-UDP_ALLOW_PORTS_IN="0"
-UDP_ALLOW_PORTS_OUT="0"
+UDP_ALLOW_PORTS_IN="80"
+UDP_ALLOW_PORTS_OUT="80"
 
 #internal server ip
 INTERNAL_SERVER_IP="192.168.10.2"
@@ -93,8 +93,8 @@ iptables -P INPUT DROP
 #SNAT
 iptables -t nat -A POSTROUTING -o $EXTERNAL -j MASQUERADE
 #DNAT
-iptables -t nat -A PREROUTING -i $EXTERNAL -p tcp -m multiport --dports TCP_ALLOW_PORTS_IN_SERVER -j DNAT --to $INTERNAL_SERVER_IP
-iptables -t nat -A PREROUTING -i $EXTERNAL -p udp -m multiport --dports UDP_ALLOW_PORTS_IN_SERVER -j DNAT --to $INTERNAL_SERVER_IP
+iptables -t nat -A PREROUTING -i $EXTERNAL -p tcp -m multiport --dports $TCP_ALLOW_PORTS_IN_SERVER -j DNAT --to $INTERNAL_SERVER_IP
+iptables -t nat -A PREROUTING -i $EXTERNAL -p udp -m multiport --dports $UDP_ALLOW_PORTS_IN_SERVER -j DNAT --to $INTERNAL_SERVER_IP
 
 #MANGLE
 iptables -t mangle -A PREROUTING -p tcp -m multiport --sports $MINIMIZE_DELAY -j TOS --set-tos Minimize-Delay
@@ -178,6 +178,9 @@ iptables -A blockout -o $EXTERNAL -i $INTERNAL -p udp -m multiport --sports 0:10
 #drop SYN packets to high ports
 iptables -A blockout -o $EXTERNAL -i $INTERNAL -p tcp -m multiport ! --dports 0:1023 -m state --state NEW -j DROP
 iptables -A blockout -o $EXTERNAL -i $INTERNAL -p udp -m multiport ! --dports 0:1023 -m state --state NEW -j DROP
+#Block all external traffic directed to ports 32768 – 32775, 137 – 139, TCP ports 111 and 515. 
+iptables -A blockout -o $EXTERNAL -i $INTERNAL -p tcp -m multiport --dports 32768:32775,137:139,111,515 -j DROP
+iptables -A blockout -o $EXTERNAL -i $INTERNAL -p udp -m multiport --dports 32768:32775,137:139 -j DROP
 #add outbound blocking chain to output chain
 iptables -A FORWARD -j blockout
 
