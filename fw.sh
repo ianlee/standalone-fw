@@ -108,61 +108,63 @@ iptables -t mangle -A PREROUTING -p tcp -m multiport --dports $MAXIMIZE_THROUGHP
 iptables -N blockin
 #block inbound traffic from specific IPs 
 if [[ -n $IP_BLOCK ]]; then
-iptables -A blockin -i $EXTERNAL -o $INTERNAL -s $IP_BLOCK -j DROP
+iptables -A blockin -i $EXTERNAL  -s $IP_BLOCK -j DROP
 fi
 #block inbound traffic from a source address from the outside matching your internal network.
-iptables -A blockin -i $EXTERNAL -o $INTERNAL -s $INTERNAL_NETWORK -j DROP
+iptables -A blockin -i $EXTERNAL  -s $INTERNAL_NETWORK -j DROP
 #OR??????????????????
 #iptables -A blockin -i $EXTERNAL -o $INTERNAL ! -s $EXTERNAL_NETWORK -j DROP
 
 
 #block syn and fin bits.  Refer to http://www.smythies.com/~doug/network/iptables_syn/index.html
-iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp ! --syn -m state --state NEW -j DROP
+iptables -A blockin -i $EXTERNAL  -p tcp ! --syn -m state --state NEW -j DROP
 
 #block inbound traffic to and from specified ports
-iptables -A blockin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --sports $BLOCK_PORTS_IN -j DROP
-iptables -A blockin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --dports $BLOCK_PORTS_IN -j DROP
-iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --sports $BLOCK_PORTS_IN -j DROP
-iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --dports $BLOCK_PORTS_IN -j DROP
+iptables -A blockin -i $EXTERNAL  -p udp -m multiport --sports $BLOCK_PORTS_IN -j DROP
+iptables -A blockin -i $EXTERNAL  -p udp -m multiport --dports $BLOCK_PORTS_IN -j DROP
+iptables -A blockin -i $EXTERNAL  -p tcp -m multiport --sports $BLOCK_PORTS_IN -j DROP
+iptables -A blockin -i $EXTERNAL  -p tcp -m multiport --dports $BLOCK_PORTS_IN -j DROP
 #drop SYN packets from ports less than 1024
-iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --sports 0:1023 -m state --state NEW -j DROP
-iptables -A blockin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --sports 0:1023 -m state --state NEW -j DROP
+iptables -A blockin -i $EXTERNAL  -p tcp -m multiport --sports 0:1023 -m state --state NEW -j DROP
+iptables -A blockin -i $EXTERNAL  -p udp -m multiport --sports 0:1023 -m state --state NEW -j DROP
 #drop SYN packets to high ports
-iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport ! --dports 0:1023 -m state --state NEW -j DROP
-iptables -A blockin -i $EXTERNAL -o $INTERNAL -p udp -m multiport ! --dports 0:1023 -m state --state NEW -j DROP
+iptables -A blockin -i $EXTERNAL  -p tcp -m multiport ! --dports 0:1023 -m state --state NEW -j DROP
+iptables -A blockin -i $EXTERNAL  -p udp -m multiport ! --dports 0:1023 -m state --state NEW -j DROP
 #Block all external traffic directed to ports 32768 – 32775, 137 – 139, TCP ports 111 and 515. 
-iptables -A blockin -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --dports 32768:32775,137:139,111,515 -j DROP
-iptables -A blockin -i $EXTERNAL -o $INTERNAL -p udp -m multiport --dports 32768:32775,137:139 -j DROP
+iptables -A blockin -i $EXTERNAL  -p tcp -m multiport --dports 32768:32775,137:139,111,515 -j DROP
+iptables -A blockin -i $EXTERNAL  -p udp -m multiport --dports 32768:32775,137:139 -j DROP
 
 #add inbound blocking chain to input chain
 iptables -A FORWARD -j blockin
+iptables -A INPUT -j blockin
 
 
 #block outbound traffic from specific IPs
 iptables -N blockout
 if [[ -n $IP_BLOCK ]]; then
-iptables -A blockout -o $EXTERNAL -i $INTERNAL -d $IP_BLOCK -j DROP
+iptables -A blockout  -i $INTERNAL -d $IP_BLOCK -j DROP
 fi
-iptables -A blockout -o $EXTERNAL -i $INTERNAL ! -s $INTERNAL_NETWORK -j DROP
+iptables -A blockout  -i $INTERNAL ! -s $INTERNAL_NETWORK -j DROP
 #block syn and fin bits. refer to  http://www.smythies.com/~doug/network/iptables_syn/index.html
-iptables -A blockout -o $EXTERNAL -i $INTERNAL -p tcp ! --syn -m state --state NEW -j DROP
+iptables -A blockout  -i $INTERNAL -p tcp ! --syn -m state --state NEW -j DROP
 
 #block out bound to and from specified ports
-iptables -A blockout -o $EXTERNAL -i $INTERNAL -p udp -m multiport --sports $BLOCK_PORTS_OUT -j DROP
-iptables -A blockout -o $EXTERNAL -i $INTERNAL -p udp -m multiport --dports $BLOCK_PORTS_OUT -j DROP
-iptables -A blockout -o $EXTERNAL -i $INTERNAL -p tcp -m multiport --sports $BLOCK_PORTS_OUT -j DROP
-iptables -A blockout -o $EXTERNAL -i $INTERNAL -p tcp -m multiport --dports $BLOCK_PORTS_OUT -j DROP
+iptables -A blockout  -i $INTERNAL -p udp -m multiport --sports $BLOCK_PORTS_OUT -j DROP
+iptables -A blockout  -i $INTERNAL -p udp -m multiport --dports $BLOCK_PORTS_OUT -j DROP
+iptables -A blockout  -i $INTERNAL -p tcp -m multiport --sports $BLOCK_PORTS_OUT -j DROP
+iptables -A blockout  -i $INTERNAL -p tcp -m multiport --dports $BLOCK_PORTS_OUT -j DROP
 #drop SYN packets from ports less than 1024
-iptables -A blockout -o $EXTERNAL -i $INTERNAL -p tcp -m multiport --sports 0:1023 -m state --state NEW -j DROP
-iptables -A blockout -o $EXTERNAL -i $INTERNAL -p udp -m multiport --sports 0:1023 -m state --state NEW -j DROP
+iptables -A blockout  -i $INTERNAL -p tcp -m multiport --sports 0:1023 -m state --state NEW -j DROP
+iptables -A blockout  -i $INTERNAL -p udp -m multiport --sports 0:1023 -m state --state NEW -j DROP
 #drop SYN packets to high ports
-iptables -A blockout -o $EXTERNAL -i $INTERNAL -p tcp -m multiport ! --dports 0:1023 -m state --state NEW -j DROP
-iptables -A blockout -o $EXTERNAL -i $INTERNAL -p udp -m multiport ! --dports 0:1023 -m state --state NEW -j DROP
+iptables -A blockout  -i $INTERNAL -p tcp -m multiport ! --dports 0:1023 -m state --state NEW -j DROP
+iptables -A blockout  -i $INTERNAL -p udp -m multiport ! --dports 0:1023 -m state --state NEW -j DROP
 #Block all external traffic directed to ports 32768 – 32775, 137 – 139, TCP ports 111 and 515. 
-iptables -A blockout -o $EXTERNAL -i $INTERNAL -p tcp -m multiport --dports 32768:32775,137:139,111,515 -j DROP
-iptables -A blockout -o $EXTERNAL -i $INTERNAL -p udp -m multiport --dports 32768:32775,137:139 -j DROP
+iptables -A blockout  -i $INTERNAL -p tcp -m multiport --dports 32768:32775,137:139,111,515 -j DROP
+iptables -A blockout  -i $INTERNAL -p udp -m multiport --dports 32768:32775,137:139 -j DROP
 #add outbound blocking chain to output chain
 iptables -A FORWARD -j blockout
+iptables -A INPUT -j blockout
 
 
 #DNS AND DHCP TRAFFIC for firewall
