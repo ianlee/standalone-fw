@@ -103,26 +103,6 @@ iptables -t mangle -A PREROUTING -p tcp -m multiport --dports $MINIMIZE_DELAY -j
 iptables -t mangle -A PREROUTING -p tcp -m multiport --dports $MAXIMIZE_THROUGHPUT -j TOS --set-tos Maximize-Throughput
 
 
-#DNS AND DHCP TRAFFIC for firewall
-iptables -N necessitiesin
-iptables -A INPUT -j necessitiesin
-iptables -N necessitiesout
-iptables -A OUTPUT -j necessitiesout
-iptables -N necessitiesforward
-iptables -A FORWARD -j necessitiesforward
-#allow inbound dns and udp traffic
-iptables -A necessitiesin -i $EXTERNAL -p udp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
-iptables -A necessitiesforward -i $EXTERNAL -o $INTERNAL -p udp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
-#allow inbound dns and dhcp traffic
-iptables -A necessitiesin -i $EXTERNAL -p tcp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
-iptables -A necessitiesforward -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
-#allow outbound udp dns and dhcp traffic
-iptables -A necessitiesout -o $EXTERNAL -p udp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
-iptables -A  necessitiesforward -o $EXTERNAL -i $INTERNAL -p udp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
-#allow outbound tcp dns and dhcp traffic
-iptables -A necessitiesout -o $EXTERNAL -p tcp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
-iptables -A  necessitiesforward -o $EXTERNAL -i $INTERNAL -p tcp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
-
 
 #chain for blocking Inbound traffic
 iptables -N blockin
@@ -183,6 +163,27 @@ iptables -A blockout -o $EXTERNAL -i $INTERNAL -p tcp -m multiport --dports 3276
 iptables -A blockout -o $EXTERNAL -i $INTERNAL -p udp -m multiport --dports 32768:32775,137:139 -j DROP
 #add outbound blocking chain to output chain
 iptables -A FORWARD -j blockout
+
+
+#DNS AND DHCP TRAFFIC for firewall
+iptables -N necessitiesin
+iptables -A INPUT -j necessitiesin
+iptables -N necessitiesout
+iptables -A OUTPUT -j necessitiesout
+iptables -N necessitiesforward
+iptables -A FORWARD -j necessitiesforward
+#allow inbound dns and udp traffic
+iptables -A necessitiesin -i $EXTERNAL -p udp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
+iptables -A necessitiesforward -i $EXTERNAL -o $INTERNAL -p udp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
+#allow inbound dns and dhcp traffic
+iptables -A necessitiesin -i $EXTERNAL -p tcp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
+iptables -A necessitiesforward -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
+#allow outbound udp dns and dhcp traffic
+iptables -A necessitiesout -o $EXTERNAL -p udp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
+iptables -A  necessitiesforward -o $EXTERNAL -i $INTERNAL -p udp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
+#allow outbound tcp dns and dhcp traffic
+iptables -A necessitiesout -o $EXTERNAL -p tcp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
+iptables -A  necessitiesforward -o $EXTERNAL -i $INTERNAL -p tcp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
 
 
 #ICMP Chain
