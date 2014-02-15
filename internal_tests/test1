@@ -1,28 +1,28 @@
 HPING 192.168.0.8 (p3p1 192.168.0.8): S set, 40 headers + 0 data bytes
-len=46 ip=192.168.0.8 ttl=63 DF id=24242 sport=80 flags=RA seq=0 win=0 rtt=0.6 ms
-len=46 ip=192.168.0.8 ttl=63 DF id=24243 sport=80 flags=RA seq=1 win=0 rtt=0.6 ms
-len=46 ip=192.168.0.8 ttl=63 DF id=24244 sport=80 flags=RA seq=2 win=0 rtt=0.6 ms
-len=46 ip=192.168.0.8 ttl=63 DF id=24245 sport=80 flags=RA seq=3 win=0 rtt=0.6 ms
-len=46 ip=192.168.0.8 ttl=63 DF id=24246 sport=80 flags=RA seq=4 win=0 rtt=0.6 ms
+len=46 ip=192.168.0.8 ttl=63 DF id=23783 sport=80 flags=RA seq=0 win=0 rtt=0.5 ms
+len=46 ip=192.168.0.8 ttl=63 DF id=23784 sport=80 flags=RA seq=1 win=0 rtt=0.6 ms
+len=46 ip=192.168.0.8 ttl=63 DF id=23785 sport=80 flags=RA seq=2 win=0 rtt=0.6 ms
+len=46 ip=192.168.0.8 ttl=63 DF id=23786 sport=80 flags=RA seq=3 win=0 rtt=0.6 ms
+len=46 ip=192.168.0.8 ttl=63 DF id=23787 sport=80 flags=RA seq=4 win=0 rtt=0.6 ms
 HPING 192.168.0.8 (p3p1 192.168.0.8): S set, 40 headers + 0 data bytes
 len=46 ip=192.168.0.8 ttl=63 DF id=0 sport=22 flags=SA seq=0 win=29200 rtt=0.6 ms
 len=46 ip=192.168.0.8 ttl=63 DF id=0 sport=22 flags=SA seq=1 win=29200 rtt=0.6 ms
-len=46 ip=192.168.0.8 ttl=63 DF id=0 sport=22 flags=SA seq=2 win=29200 rtt=0.6 ms
+len=46 ip=192.168.0.8 ttl=63 DF id=0 sport=22 flags=SA seq=2 win=29200 rtt=0.5 ms
 len=46 ip=192.168.0.8 ttl=63 DF id=0 sport=22 flags=SA seq=3 win=29200 rtt=0.6 ms
-len=46 ip=192.168.0.8 ttl=63 DF id=0 sport=22 flags=SA seq=4 win=29200 rtt=0.6 ms
+len=46 ip=192.168.0.8 ttl=63 DF id=0 sport=22 flags=SA seq=4 win=29200 rtt=0.7 ms
 HPING 192.168.0.8 (p3p1 192.168.0.8): S set, 40 headers + 0 data bytes
-len=46 ip=192.168.0.8 ttl=63 DF id=24247 sport=443 flags=RA seq=0 win=0 rtt=0.6 ms
-len=46 ip=192.168.0.8 ttl=63 DF id=24248 sport=443 flags=RA seq=1 win=0 rtt=0.6 ms
-len=46 ip=192.168.0.8 ttl=63 DF id=24249 sport=443 flags=RA seq=2 win=0 rtt=0.6 ms
-len=46 ip=192.168.0.8 ttl=63 DF id=24250 sport=443 flags=RA seq=3 win=0 rtt=0.6 ms
-len=46 ip=192.168.0.8 ttl=63 DF id=24251 sport=443 flags=RA seq=4 win=0 rtt=0.6 ms
+len=46 ip=192.168.0.8 ttl=63 DF id=23788 sport=443 flags=RA seq=0 win=0 rtt=0.6 ms
+len=46 ip=192.168.0.8 ttl=63 DF id=23789 sport=443 flags=RA seq=1 win=0 rtt=0.5 ms
+len=46 ip=192.168.0.8 ttl=63 DF id=23790 sport=443 flags=RA seq=2 win=0 rtt=0.6 ms
+len=46 ip=192.168.0.8 ttl=63 DF id=23791 sport=443 flags=RA seq=3 win=0 rtt=0.5 ms
+len=46 ip=192.168.0.8 ttl=63 DF id=23793 sport=443 flags=RA seq=4 win=0 rtt=0.5 ms
 em1: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
         inet 192.168.0.8  netmask 255.255.255.0  broadcast 192.168.0.255
         inet6 fe80::7a2b:cbff:fe96:b951  prefixlen 64  scopeid 0x20<link>
         ether 78:2b:cb:96:b9:51  txqueuelen 1000  (Ethernet)
-        RX packets 28149  bytes 5913098 (5.6 MiB)
+        RX packets 37034  bytes 7298786 (6.9 MiB)
         RX errors 0  dropped 15  overruns 0  frame 0
-        TX packets 5226  bytes 642877 (627.8 KiB)
+        TX packets 123257  bytes 8718929 (8.3 MiB)
         TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
         device interrupt 20  memory 0xe1b00000-e1b20000  
 
@@ -30,9 +30,9 @@ lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
         inet 127.0.0.1  netmask 255.0.0.0
         inet6 ::1  prefixlen 128  scopeid 0x10<host>
         loop  txqueuelen 0  (Local Loopback)
-        RX packets 50  bytes 4590 (4.4 KiB)
+        RX packets 191  bytes 26258 (25.6 KiB)
         RX errors 0  dropped 0  overruns 0  frame 0
-        TX packets 50  bytes 4590 (4.4 KiB)
+        TX packets 191  bytes 26258 (25.6 KiB)
         TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
 
 p3p1: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
