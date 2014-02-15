@@ -26,8 +26,8 @@ UDP_ALLOW_PORTS_OUT="80"
 
 #internal server ip
 INTERNAL_SERVER_IP="192.168.10.2"
-TCP_ALLOW_PORTS_IN_SERVER="80,22" #acting as server (allow connections to these ports)
-TCP_ALLOW_PORTS_OUT_SERVER="80,22"
+TCP_ALLOW_PORTS_IN_SERVER="80,22,443" #acting as server (allow connections to these ports)
+TCP_ALLOW_PORTS_OUT_SERVER="80,22,443"
 UDP_ALLOW_PORTS_IN_SERVER="0"
 UDP_ALLOW_PORTS_OUT_SERVER="0"
 
