@@ -1,2 +1,2 @@
 HPING 192.168.10.1 (em1 192.168.10.1): S set, 40 headers + 0 data bytes
-len=46 ip=192.168.10.1 ttl=255 id=47639 sport=0 flags=RA seq=0 win=512 rtt=0.4 ms
+len=46 ip=192.168.10.1 ttl=255 id=47143 sport=0 flags=RA seq=0 win=512 rtt=0.4 ms
