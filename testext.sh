@@ -53,7 +53,7 @@ CASE=4
 # Drop all packets destined to the firewall host from outside
 
 echo "Pinging packets from internal host to firewall:"
-hping3 $FIREWALL_IP -p ++0 -c 2000 -i u1000 -S > $BASEFILE$CASE
+hping3 $IP -p ++0 -c 2000 -i u1000 -S > $BASEFILE$CASE
 # Refer to Test Case 1 for ssh and they are dnat'd ports
 echo "Test case 4 results written to file"
 
