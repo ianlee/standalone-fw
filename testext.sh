@@ -29,10 +29,10 @@ echo "Test case 1 results written to file"
 ################################# Test Case 2 ###################################
 echo "Test case 2 commencing..."
 CASE=2
-# Allow Inbound/Outbound UDP Packets allowed on user defined port 53
+# Allow Inbound/Outbound UDP Packets allowed on user defined port 80
 
-echo "Pinging 5 UDP Packets to port 53 of host $IP:"
-hping3 $IP --udp -c 5 -p 53 > $BASEFILE$CASE
+echo "Pinging 5 UDP Packets to port 80 of host $IP:"
+hping3 $IP --udp -c 5 -p 80 > $BASEFILE$CASE
 
 echo "Test case 2 results written to file"
 
@@ -72,7 +72,7 @@ echo "Test case 6 commencing..."
 CASE=6
 # Drop SYN packets from low ports
 echo "Pinging SYN packets from low ports to host $IP:"
-hping3 $IP -s 0 -c 1024 -i u1000 -S > $BASEFILE$CASE
+hping3 $IP -s 0 -p 80 -c 1024 -i u1000 -S > $BASEFILE$CASE
 echo "Test case 6 results written to file"
 
 ################################# Test Case 7 ###################################
@@ -87,8 +87,8 @@ echo "Test case 7 results written to file"
 echo "Test case 8 commencing..."
 CASE=8
 #existing connections
-echo "Sending packets to existing connections:"
-hping3 $IP -c 5 > $BASEFILE$CASE
+echo "Sending packets to existing connections to ports 0 - 1023:"
+hping3 $IP -p ++0 -c 1024 -i u1000 -S > $BASEFILE$CASE
 echo "Test case 8 results written to file"
 
 ################################# Test Case 9 ###################################
@@ -153,12 +153,23 @@ CASE=14
 echo "Mangle SSH login of host $SSH_ADDR:"
 sshpass -p "uest1onQ?" ssh -o StrictHostKeyChecking=no $SSH_ADDR "ifconfig;exit" > $BASEFILE$CASE
 
+echo "Sending 5 TCP packets to port 21 of host $IP:"
+hping3 $IP -c 5 -p 21 > $BASEFILE$CASE
+echo "Sending 5 TCP packets from port 21 of host $IP:"
+hping3 $IP -c 5 -s 21 -k >> $BASEFILE$CASE
+
 echo "Test case 14 results written to file"
 
 ################################# Test Case 15 ##################################
 echo "Test case 15 commencing..."
 # Use other tool for FTP
 CASE=15
+
+echo "Sending 5 TCP packets to port 20 of host $IP:"
+hping3 $IP -c 5 -p 20 > $BASEFILE$CASE
+echo "Sending 5 TCP packets from port 20 of host $IP:"
+hping3 $IP -c 5 -s 20 -k >> $BASEFILE$CASE
+
 echo "Test case 15 results written to file"
 
 ################################# Test Case 16 ##################################
