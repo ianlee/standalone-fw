@@ -94,8 +94,8 @@ echo "Test case 8 results written to file"
 ################################# Test Case 9 ###################################
 echo "Test case 9 commencing..."
 CASE=9
-# Outside matching internal network. and vice versa
-echo "Sending packets with IP matching internal network via : "
+# Outside matching internal network
+echo "Sending packets with IP matching internal network via $SPOOFED_ADDR: "
 hping3 $IP -c 5 -a $SPOOFED_IP > $BASEFILE$CASE
 echo "Test case 9 results written to file"
 
@@ -122,11 +122,11 @@ CASE=12
 
 #Sending packets to port 32768 - 32775
 echo "Sending 8 UDP packets to port 32768 - 32775 of host $IP:" 
-hping3 $IP --udp -p 32768 -c 8 > $BASEFILE$CASE
+hping3 $IP --udp -p ++32768 -c 8 > $BASEFILE$CASE
 
 #Sending packets to port 137 -139
 echo "Sending 3 UDP packets to port 137 - 139 of host $IP:"
-hping3 $IP --udp -p 137 -c 3 >> $BASEFILE$CASE
+hping3 $IP --udp -p ++137 -c 3 >> $BASEFILE$CASE
 echo "Test case 12 results written to file"
 
 ################################# Test Case 13 ##################################
@@ -134,9 +134,9 @@ echo "Test case 13 commencing..."
 CASE=13
 
 echo "Sending 8 TCP packets to port 32768 - 32775 of host $IP:" 
-hping3 $IP -p 32768 -c 8 > $BASEFILE$CASE
+hping3 $IP -p ++32768 -c 8 > $BASEFILE$CASE
 echo "Sending 3 TCP packets to port 137 - 139 of host $IP:"
-hping3 $IP -p 137 -c 3 >> $BASEFILE$CASE
+hping3 $IP -p ++137 -c 3 >> $BASEFILE$CASE
 echo "Sending 3 TCP packets to port 111 of host $IP:"
 hping3 $IP -p 111 -c 3 -k >> $BASEFILE$CASE
 echo "Sending 3 TCP packets to port 515 of host $IP:"
