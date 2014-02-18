@@ -1,28 +1,28 @@
-HPING 192.168.0.9 (p3p1 192.168.0.9): S set, 40 headers + 0 data bytes
-len=46 ip=192.168.0.9 ttl=63 DF id=54249 sport=80 flags=RA seq=0 win=0 rtt=0.5 ms
-len=46 ip=192.168.0.9 ttl=63 DF id=54250 sport=80 flags=RA seq=1 win=0 rtt=0.6 ms
-len=46 ip=192.168.0.9 ttl=63 DF id=54251 sport=80 flags=RA seq=2 win=0 rtt=0.6 ms
-len=46 ip=192.168.0.9 ttl=63 DF id=54252 sport=80 flags=RA seq=3 win=0 rtt=0.5 ms
-len=46 ip=192.168.0.9 ttl=63 DF id=54253 sport=80 flags=RA seq=4 win=0 rtt=0.6 ms
-HPING 192.168.0.9 (p3p1 192.168.0.9): S set, 40 headers + 0 data bytes
-len=46 ip=192.168.0.9 ttl=63 DF id=0 sport=22 flags=SA seq=0 win=29200 rtt=0.6 ms
-len=46 ip=192.168.0.9 ttl=63 DF id=0 sport=22 flags=SA seq=1 win=29200 rtt=0.6 ms
-len=46 ip=192.168.0.9 ttl=63 DF id=0 sport=22 flags=SA seq=2 win=29200 rtt=0.6 ms
-len=46 ip=192.168.0.9 ttl=63 DF id=0 sport=22 flags=SA seq=3 win=29200 rtt=0.6 ms
-len=46 ip=192.168.0.9 ttl=63 DF id=0 sport=22 flags=SA seq=4 win=29200 rtt=0.6 ms
-HPING 192.168.0.9 (p3p1 192.168.0.9): S set, 40 headers + 0 data bytes
-len=46 ip=192.168.0.9 ttl=63 DF id=54254 sport=443 flags=RA seq=0 win=0 rtt=0.5 ms
-len=46 ip=192.168.0.9 ttl=63 DF id=54255 sport=443 flags=RA seq=1 win=0 rtt=0.6 ms
-len=46 ip=192.168.0.9 ttl=63 DF id=54256 sport=443 flags=RA seq=2 win=0 rtt=0.6 ms
-len=46 ip=192.168.0.9 ttl=63 DF id=54257 sport=443 flags=RA seq=3 win=0 rtt=0.5 ms
-len=46 ip=192.168.0.9 ttl=63 DF id=54258 sport=443 flags=RA seq=4 win=0 rtt=0.6 ms
+HPING 192.168.0.14 (p3p1 192.168.0.14): S set, 40 headers + 0 data bytes
+len=46 ip=192.168.0.14 ttl=63 DF id=10278 sport=80 flags=RA seq=0 win=0 rtt=0.6 ms
+len=46 ip=192.168.0.14 ttl=63 DF id=10279 sport=80 flags=RA seq=1 win=0 rtt=0.5 ms
+len=46 ip=192.168.0.14 ttl=63 DF id=10280 sport=80 flags=RA seq=2 win=0 rtt=0.6 ms
+len=46 ip=192.168.0.14 ttl=63 DF id=10281 sport=80 flags=RA seq=3 win=0 rtt=0.6 ms
+len=46 ip=192.168.0.14 ttl=63 DF id=10282 sport=80 flags=RA seq=4 win=0 rtt=0.6 ms
+HPING 192.168.0.14 (p3p1 192.168.0.14): S set, 40 headers + 0 data bytes
+len=46 ip=192.168.0.14 ttl=63 DF id=0 sport=22 flags=SA seq=0 win=29200 rtt=0.5 ms
+len=46 ip=192.168.0.14 ttl=63 DF id=0 sport=22 flags=SA seq=1 win=29200 rtt=0.6 ms
+len=46 ip=192.168.0.14 ttl=63 DF id=0 sport=22 flags=SA seq=2 win=29200 rtt=0.6 ms
+len=46 ip=192.168.0.14 ttl=63 DF id=0 sport=22 flags=SA seq=3 win=29200 rtt=0.7 ms
+len=46 ip=192.168.0.14 ttl=63 DF id=0 sport=22 flags=SA seq=4 win=29200 rtt=0.5 ms
+HPING 192.168.0.14 (p3p1 192.168.0.14): S set, 40 headers + 0 data bytes
+len=46 ip=192.168.0.14 ttl=63 DF id=10283 sport=443 flags=RA seq=0 win=0 rtt=0.5 ms
+len=46 ip=192.168.0.14 ttl=63 DF id=10284 sport=443 flags=RA seq=1 win=0 rtt=0.6 ms
+len=46 ip=192.168.0.14 ttl=63 DF id=10285 sport=443 flags=RA seq=2 win=0 rtt=0.6 ms
+len=46 ip=192.168.0.14 ttl=63 DF id=10286 sport=443 flags=RA seq=3 win=0 rtt=0.6 ms
+len=46 ip=192.168.0.14 ttl=63 DF id=10287 sport=443 flags=RA seq=4 win=0 rtt=0.6 ms
 em1: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
-        inet 192.168.0.9  netmask 255.255.255.0  broadcast 192.168.0.255
-        inet6 fe80::7a2b:cbff:fe96:b4a2  prefixlen 64  scopeid 0x20<link>
-        ether 78:2b:cb:96:b4:a2  txqueuelen 1000  (Ethernet)
-        RX packets 14150  bytes 3592433 (3.4 MiB)
+        inet 192.168.0.14  netmask 255.255.255.0  broadcast 192.168.0.255
+        inet6 fe80::7a2b:cbff:fea3:d737  prefixlen 64  scopeid 0x20<link>
+        ether 78:2b:cb:a3:d7:37  txqueuelen 1000  (Ethernet)
+        RX packets 37874  bytes 9551512 (9.1 MiB)
         RX errors 0  dropped 0  overruns 0  frame 0
-        TX packets 26764  bytes 2007425 (1.9 MiB)
+        TX packets 29457  bytes 6370721 (6.0 MiB)
         TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
         device interrupt 20  memory 0xe1b00000-e1b20000  
 
@@ -30,15 +30,8 @@ lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
         inet 127.0.0.1  netmask 255.0.0.0
         inet6 ::1  prefixlen 128  scopeid 0x10<host>
         loop  txqueuelen 0  (Local Loopback)
-        RX packets 334  bytes 25928 (25.3 KiB)
+        RX packets 504  bytes 39560 (38.6 KiB)
         RX errors 0  dropped 0  overruns 0  frame 0
-        TX packets 334  bytes 25928 (25.3 KiB)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
-
-p3p1: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
-        ether 00:0e:0c:51:2f:7a  txqueuelen 1000  (Ethernet)
-        RX packets 0  bytes 0 (0.0 B)
-        RX errors 0  dropped 0  overruns 0  frame 0
-        TX packets 0  bytes 0 (0.0 B)
+        TX packets 504  bytes 39560 (38.6 KiB)
         TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
 

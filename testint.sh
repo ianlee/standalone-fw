@@ -1,8 +1,8 @@
 #testing firewall from an internal source.
 
-IP_ADDR="192.168.0.9"
+IP_ADDR="192.168.0.14"
 FIREWALL_IP="192.168.10.1"
-IP="192.168.0.9"
+IP="192.168.0.14"
 SSH_ADDR="root@$IP_ADDR"
 BASEFILE="internal_tests/test"
 
@@ -149,10 +149,10 @@ CASE=14
 
 #Mangling SSH and FTP services
 echo "Mangle SSH login of host $SSH_ADDR:"
-sshpass -p "uest1onQ?" ssh -o StrictHostKeyChecking=no $SSH_ADDR "ifconfig;exit" > $BASEFILE$CASE
+sshpass -p "uest1onQ?" ssh -o StrictHostKeyChecking=no $SSH_ADDR "ifconfig;exit;" > $BASEFILE$CASE
 
 echo "Sending 5 TCP packets to port 21 of host $IP:"
-hping3 $IP -c 5 -p 21 > $BASEFILE$CASE
+hping3 $IP -c 5 -p 21 >> $BASEFILE$CASE
 echo "Sending 5 TCP packets from port 21 of host $IP:"
 hping3 $IP -c 5 -s 21 -k >> $BASEFILE$CASE
 

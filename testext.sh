@@ -154,7 +154,7 @@ echo "Mangle SSH login of host $SSH_ADDR:"
 sshpass -p "uest1onQ?" ssh -o StrictHostKeyChecking=no $SSH_ADDR "ifconfig;exit" > $BASEFILE$CASE
 
 echo "Sending 5 TCP packets to port 21 of host $IP:"
-hping3 $IP -c 5 -p 21 > $BASEFILE$CASE
+hping3 $IP -c 5 -p 21 >> $BASEFILE$CASE
 echo "Sending 5 TCP packets from port 21 of host $IP:"
 hping3 $IP -c 5 -s 21 -k >> $BASEFILE$CASE
 

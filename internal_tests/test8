@@ -1,5 +1,5 @@
-HPING 192.168.0.9 (p3p1 192.168.0.9): S set, 40 headers + 0 data bytes
-len=46 ip=192.168.0.9 ttl=63 DF id=0 sport=22 flags=SA seq=22 win=29200 rtt=0.4 ms
-len=46 ip=192.168.0.9 ttl=63 DF id=54274 sport=53 flags=RA seq=53 win=0 rtt=0.4 ms
-len=46 ip=192.168.0.9 ttl=63 DF id=54276 sport=80 flags=RA seq=80 win=0 rtt=0.4 ms
-len=46 ip=192.168.0.9 ttl=63 DF id=54277 sport=443 flags=RA seq=443 win=0 rtt=0.5 ms
+HPING 192.168.0.14 (p3p1 192.168.0.14): S set, 40 headers + 0 data bytes
+len=46 ip=192.168.0.14 ttl=63 DF id=0 sport=22 flags=SA seq=22 win=29200 rtt=0.4 ms
+len=46 ip=192.168.0.14 ttl=63 DF id=10303 sport=53 flags=RA seq=53 win=0 rtt=0.5 ms
+len=46 ip=192.168.0.14 ttl=63 DF id=10305 sport=80 flags=RA seq=80 win=0 rtt=0.5 ms
+len=46 ip=192.168.0.14 ttl=63 DF id=10306 sport=443 flags=RA seq=443 win=0 rtt=0.5 ms
