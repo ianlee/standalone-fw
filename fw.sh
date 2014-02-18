@@ -118,6 +118,7 @@ iptables -A blockin -i $EXTERNAL  -s $INTERNAL_NETWORK -j DROP
 
 #block syn and fin bits.  Refer to http://www.smythies.com/~doug/network/iptables_syn/index.html
 iptables -A blockin -i $EXTERNAL  -p tcp ! --syn -m state --state NEW -j DROP
+iptables -A blockin -i $EXTERNAL  -p tcp --tcp-flags SYN,FIN SYN,FIN -j DROP
 
 #block inbound traffic to and from specified ports
 iptables -A blockin -i $EXTERNAL  -p udp -m multiport --sports $BLOCK_PORTS_IN -j DROP
@@ -147,6 +148,7 @@ fi
 iptables -A blockout  -i $INTERNAL ! -s $INTERNAL_NETWORK -j DROP
 #block syn and fin bits. refer to  http://www.smythies.com/~doug/network/iptables_syn/index.html
 iptables -A blockout  -i $INTERNAL -p tcp ! --syn -m state --state NEW -j DROP
+iptables -A blockout  -i $INTERNAL -p tcp --tcp-flags SYN,FIN SYN,FIN  -j DROP
 
 #block out bound to and from specified ports
 iptables -A blockout  -i $INTERNAL -p udp -m multiport --sports $BLOCK_PORTS_OUT -j DROP
