@@ -1,4 +1,4 @@
-HPING 192.168.0.4 (em1 192.168.0.4): S set, 40 headers + 0 data bytes
-len=46 ip=192.168.0.4 ttl=63 DF id=0 sport=22 flags=SA seq=22 win=29200 rtt=0.6 ms
-len=46 ip=192.168.0.4 ttl=63 DF id=39716 sport=80 flags=RA seq=80 win=0 rtt=0.6 ms
-len=46 ip=192.168.0.4 ttl=63 DF id=39717 sport=443 flags=RA seq=443 win=0 rtt=0.5 ms
+HPING 192.168.0.24 (em1 192.168.0.24): S set, 40 headers + 0 data bytes
+len=46 ip=192.168.0.24 ttl=63 DF id=0 sport=22 flags=SA seq=22 win=29200 rtt=0.6 ms
+len=46 ip=192.168.0.24 ttl=63 DF id=30470 sport=80 flags=RA seq=80 win=0 rtt=0.5 ms
+len=46 ip=192.168.0.24 ttl=63 DF id=30471 sport=443 flags=RA seq=443 win=0 rtt=0.6 ms

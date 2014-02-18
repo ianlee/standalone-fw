@@ -1,8 +1,8 @@
 #testing firewall from an external source.
 
-IP_ADDR="192.168.0.4"
+IP_ADDR="192.168.0.24"
 FIREWALL_IP="192.168.10.1"
-IP="192.168.0.4"
+IP="192.168.0.24"
 SPOOFED_IP="192.168.10.3"
 SSH_ADDR="root@$IP_ADDR"
 BASEFILE="external_tests/test"

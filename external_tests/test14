@@ -1,2 +1,20 @@
-HPING 192.168.0.4 (em1 192.168.0.4): NO FLAGS are set, 40 headers + 0 data bytes
-HPING 192.168.0.4 (em1 192.168.0.4): NO FLAGS are set, 40 headers + 0 data bytes
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet6 ::1  prefixlen 128  scopeid 0x10<host>
+        loop  txqueuelen 0  (Local Loopback)
+        RX packets 97  bytes 8017 (7.8 KiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 97  bytes 8017 (7.8 KiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+p3p1: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.10.2  netmask 255.255.255.0  broadcast 192.168.10.255
+        inet6 fe80::20e:cff:fe51:6eaa  prefixlen 64  scopeid 0x20<link>
+        ether 00:0e:0c:51:6e:aa  txqueuelen 1000  (Ethernet)
+        RX packets 24791  bytes 27870997 (26.5 MiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 44988  bytes 3583210 (3.4 MiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+HPING 192.168.0.24 (em1 192.168.0.24): NO FLAGS are set, 40 headers + 0 data bytes
+HPING 192.168.0.24 (em1 192.168.0.24): NO FLAGS are set, 40 headers + 0 data bytes
