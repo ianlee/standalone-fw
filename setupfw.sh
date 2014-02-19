@@ -24,3 +24,13 @@ echo "1" >/proc/sys/net/ipv4/ip_forward
 route add -net $EXTERNAL_SUBNET netmask 255.255.255.0 gw $FIREWALL_IP
 
 
+#
+# after this run fw.sh to start the firewall
+#
+# if you want to have forwarding without the firewall running, you need to add prerouting rules to iptables
+# 
+# #add prerouting rule
+# iptables -t nat -A POSTROUTING -o p3p1 -j MASQUERADE
+#
+# #allow forwarding packets through
+# iptables -P FORWARD ACCEPT
