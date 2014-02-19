@@ -96,6 +96,11 @@ iptables -t nat -A POSTROUTING -o $EXTERNAL -j MASQUERADE
 iptables -t nat -A PREROUTING -i $EXTERNAL -p tcp -m multiport --dports $TCP_ALLOW_PORTS_IN_SERVER -j DNAT --to $INTERNAL_SERVER_IP
 iptables -t nat -A PREROUTING -i $EXTERNAL -p udp -m multiport --dports $UDP_ALLOW_PORTS_IN_SERVER -j DNAT --to $INTERNAL_SERVER_IP
 
+arr=$(echo $ICMP_ALLOW_TYPES | tr "," "\n")
+for x in $arr
+do
+    iptables -t nat -A PREROUTING -i $EXTERNAL -p icmp --icmp-type $x -m state --state NEW,ESTABLISHED -j DNAT --to $INTERNAL_SERVER_IP
+done
 #MANGLE
 iptables -t mangle -A PREROUTING -p tcp -m multiport --sports $MINIMIZE_DELAY -j TOS --set-tos Minimize-Delay
 iptables -t mangle -A PREROUTING -p tcp -m multiport --sports $MAXIMIZE_THROUGHPUT -j TOS --set-tos Maximize-Throughput
@@ -195,10 +200,8 @@ iptables -N icmpin
 arr=$(echo $ICMP_ALLOW_TYPES | tr "," "\n")
 for x in $arr
 do
-    iptables -A icmpin -p icmp --icmp-type $x -m state --state NEW,ESTABLISHED -j ACCEPT
+  iptables -t nat -A PREROUTING -i $EXTERNAL -p icmp --icmp-type $x -m state --state NEW,ESTABLISHED -j DNAT --to $INTERNAL_SERVER_IP
 done
-iptables -A FORWARD -p icmp -j icmpin
-
 
 
 

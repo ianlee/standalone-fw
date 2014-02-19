@@ -20,11 +20,11 @@ INTERNAL_SUBNET="192.168.10"
 INTERNAL_BINDING="2"
 
 DOMAIN="ad.bcit.ca"
-DNS_IP1=".39"
-DNS_IP2=".38"
+DNS_IP1="142.232.191.39"
+DNS_IP2="142.232.191.38"
 
 ifconfig $EXTERNAL_INTERFACE down 
 ifconfig $INTERNAL_INTERFACE $INTERNAL_SUBNET.$INTERNAL_BINDING up 
 route add default gw $INTERNAL_SUBNET.$INTERNAL_GATEWAY_BINDING
 
-echo "domain $DOMAIN\nsearch $DOMAIN\nnameserver $DNS_IP1\nnameserver $DNS_IP2\n" >/etc/resolv.conf
+echo -e "domain $DOMAIN\nsearch $DOMAIN\nnameserver $DNS_IP1\nnameserver $DNS_IP2\n" >/etc/resolv.conf

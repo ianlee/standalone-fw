@@ -52,7 +52,7 @@ echo "Test case 4 commencing..."
 CASE=4
 # Drop all packets destined to the firewall host from outside
 
-echo "Pinging packets from internal host to firewall:"
+echo "Pinging packets from external host to firewall:"
 hping3 $IP -p ++0 -c 2000 -i u1000 -S > $BASEFILE$CASE
 # Refer to Test Case 1 for ssh and they are dnat'd ports
 echo "Test case 4 results written to file"
@@ -96,7 +96,7 @@ echo "Test case 9 commencing..."
 CASE=9
 # Outside matching internal network
 echo "Sending packets with IP matching internal network via $SPOOFED_ADDR: "
-hping3 $IP -c 5 -a $SPOOFED_IP > $BASEFILE$CASE
+hping3 $IP -S -c 5 -p 80 -a $SPOOFED_IP > $BASEFILE$CASE
 echo "Test case 9 results written to file"
 
 ################################# Test Case 10 ##################################
