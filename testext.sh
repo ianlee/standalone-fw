@@ -96,7 +96,7 @@ echo "Test case 9 commencing..."
 CASE=9
 # Outside matching internal network
 echo "Sending packets with IP matching internal network via $SPOOFED_ADDR: "
-hping3 $IP -c 5 -a $SPOOFED_IP > $BASEFILE$CASE
+hping3 $IP -S -c 5 -p 80 -a $SPOOFED_IP > $BASEFILE$CASE
 echo "Test case 9 results written to file"
 
 ################################# Test Case 10 ##################################
