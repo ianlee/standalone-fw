@@ -195,10 +195,8 @@ iptables -N icmpin
 arr=$(echo $ICMP_ALLOW_TYPES | tr "," "\n")
 for x in $arr
 do
-    iptables -A icmpin -p icmp --icmp-type $x -m state --state NEW,ESTABLISHED -j ACCEPT
+  iptables -t nat -A PREROUTING -i $EXTERNAL -p icmp --icmp-type $x -m state --state NEW,ESTABLISHED -j DNAT --to $INTERNAL_SERVER_IP
 done
-iptables -A FORWARD -p icmp -j icmpin
-
 
 
 

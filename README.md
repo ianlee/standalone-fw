@@ -45,5 +45,10 @@ To turn off the firewall, enter:
 	. rfw.sh
 	Note that this removes the SNAT rules as well so the internal computer will not have internet connection after this is run.
 
+Before running the external computer test script via testext.sh and internal computer test script via testint.sh, run the following command:
+	yum install sshpass
+
+
+
 
 
