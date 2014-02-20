@@ -108,6 +108,12 @@ iptables -t mangle -A PREROUTING -p tcp -m multiport --dports $MINIMIZE_DELAY -j
 iptables -t mangle -A PREROUTING -p tcp -m multiport --dports $MAXIMIZE_THROUGHPUT -j TOS --set-tos Maximize-Throughput
 
 
+iptables -N dhcpin
+iptables -A INPUT -j dhcpin
+iptables -N dhcpout
+iptables -A OUTPUT -j dhcpout
+iptables -N dhcpforward
+iptables -A FORWARD -j dhcpforward
 
 #chain for blocking Inbound traffic
 iptables -N blockin
@@ -181,18 +187,33 @@ iptables -N necessitiesout
 iptables -A OUTPUT -j necessitiesout
 iptables -N necessitiesforward
 iptables -A FORWARD -j necessitiesforward
-#allow inbound dns and udp traffic
-iptables -A necessitiesin -i $EXTERNAL -p udp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
-iptables -A necessitiesforward -i $EXTERNAL -o $INTERNAL -p udp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
-#allow inbound dns and dhcp traffic
-iptables -A necessitiesin -i $EXTERNAL -p tcp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
-iptables -A necessitiesforward -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --sports $DNS_PORT_IN,$DHCP_PORT_IN -j ACCEPT
-#allow outbound udp dns and dhcp traffic
-iptables -A necessitiesout -o $EXTERNAL -p udp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
-iptables -A  necessitiesforward -o $EXTERNAL -i $INTERNAL -p udp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
-#allow outbound tcp dns and dhcp traffic
-iptables -A necessitiesout -o $EXTERNAL -p tcp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
-iptables -A  necessitiesforward -o $EXTERNAL -i $INTERNAL -p tcp -m multiport --dports $DNS_PORT_OUT,$DHCP_PORT_OUT -j ACCEPT
+
+
+#allow inbound udp dns traffic
+iptables -A necessitiesin -i $EXTERNAL -p udp -m multiport --sports $DNS_PORT_IN -j ACCEPT
+iptables -A necessitiesforward -i $EXTERNAL -o $INTERNAL -p udp -m multiport --sports $DNS_PORT_IN -j ACCEPT
+#allow inbound tcp dns  traffic
+iptables -A necessitiesin -i $EXTERNAL -p tcp -m multiport --sports $DNS_PORT_IN -j ACCEPT
+iptables -A necessitiesforward -i $EXTERNAL -o $INTERNAL -p tcp -m multiport --sports $DNS_PORT_IN -j ACCEPT
+#allow outbound udp dns traffic
+iptables -A necessitiesout -o $EXTERNAL -p udp -m multiport --dports $DNS_PORT_OUT -j ACCEPT
+iptables -A  necessitiesforward -o $EXTERNAL -i $INTERNAL -p udp -m multiport --dports $DNS_PORT_OUT -j ACCEPT
+#allow outbound tcp dns  traffic
+iptables -A necessitiesout -o $EXTERNAL -p tcp -m multiport --dports $DNS_PORT_OUT -j ACCEPT
+iptables -A  necessitiesforward -o $EXTERNAL -i $INTERNAL -p tcp -m multiport --dports $DNS_PORT_OUT -j ACCEPT
+
+#allow inbound udp dhcp traffic
+iptables -A dhcpin -i $EXTERNAL -p udp  --dport $DHCP_PORT_OUT  -m multiport --sports $DHCP_PORT_IN  -j ACCEPT
+iptables -A dhcpforward -i $EXTERNAL -o $INTERNAL -p udp  --dport $DHCP_PORT_OUT -m multiport --sports $DHCP_PORT_IN   -j ACCEPT
+#allow inbound tcp dhcp traffic
+iptables -A dhcpin -i $EXTERNAL -p tcp --dport $DHCP_PORT_OUT  -m multiport --sports $DHCP_PORT_IN  -j ACCEPT
+iptables -A dhcpforward -i $EXTERNAL -o $INTERNAL -p tcp --dport $DHCP_PORT_OUT  -m multiport --sports $DHCP_PORT_IN   -j ACCEPT
+#allow outbound udp dhcp traffic
+iptables -A dhcpout -o $EXTERNAL -p udp  --sport $DHCP_PORT_IN -m multiport --dports $DHCP_PORT_OUT  -j ACCEPT
+iptables -A  dhcpforward -o $EXTERNAL -i $INTERNAL -p udp  --sport $DHCP_PORT_IN -m multiport --dports $DHCP_PORT_OUT   -j ACCEPT
+#allow outbound tcp dhcp traffic
+iptables -A dhcpout -o $EXTERNAL -p tcp --sport $DHCP_PORT_IN  -m multiport --dports $DHCP_PORT_OUT  -j ACCEPT
+iptables -A  dhcpforward -o $EXTERNAL -i $INTERNAL -p tcp  --sport $DHCP_PORT_IN -m multiport --dports $DHCP_PORT_OUT -j ACCEPT
 
 
 #ICMP Chain
@@ -200,9 +221,9 @@ iptables -N icmpin
 arr=$(echo $ICMP_ALLOW_TYPES | tr "," "\n")
 for x in $arr
 do
-  iptables -t nat -A PREROUTING -i $EXTERNAL -p icmp --icmp-type $x -m state --state NEW,ESTABLISHED -j DNAT --to $INTERNAL_SERVER_IP
+  iptables -A icmpin -p icmp --icmp-type $x -m state --state NEW,ESTABLISHED -j ACCEPT
 done
-
+iptables -A FORWARD -j icmpin
 
 
 #create udpin chain
