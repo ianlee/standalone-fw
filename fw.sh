@@ -221,9 +221,10 @@ iptables -N icmpin
 arr=$(echo $ICMP_ALLOW_TYPES | tr "," "\n")
 for x in $arr
 do
-  iptables -A icmpin -p icmp --icmp-type $x -m state --state NEW,ESTABLISHED -j ACCEPT
+  iptables -A icmpin -i $EXTERNAL -p icmp --icmp-type $x -m state --state NEW,ESTABLISHED -j ACCEPT
 done
-iptables -A FORWARD -j icmpin
+iptables -A FORWARD -p icmp -j icmpin
+
 
 
 #create udpin chain
