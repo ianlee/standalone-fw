@@ -200,9 +200,9 @@ iptables -N icmpin
 arr=$(echo $ICMP_ALLOW_TYPES | tr "," "\n")
 for x in $arr
 do
-  iptables -t nat -A PREROUTING -i $EXTERNAL -p icmp --icmp-type $x -m state --state NEW,ESTABLISHED -j DNAT --to $INTERNAL_SERVER_IP
+  iptables -A icmpin -i $EXTERNAL -p icmp --icmp-type $x -m state --state NEW,ESTABLISHED -j ACCEPT
 done
-
+iptables -A FORWARD -p icmp -j icmpin
 
 
 #create udpin chain
