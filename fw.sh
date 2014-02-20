@@ -19,15 +19,15 @@ EXTERNAL_NETWORK="192.168.0.0/24"
 INTERNAL="p3p1"
 INTERNAL_NETWORK="192.168.10.0/24"
 #Allowing ports(protocols)
-TCP_ALLOW_PORTS_IN="22,80,443" #from these ports (acting as a client)
-TCP_ALLOW_PORTS_OUT="22,80,443"
+TCP_ALLOW_PORTS_IN="22,80,443,8080,3131" #from these ports (acting as a client)
+TCP_ALLOW_PORTS_OUT="22,80,443,8080,3131"
 UDP_ALLOW_PORTS_IN="80"
 UDP_ALLOW_PORTS_OUT="80"
 
 #internal server ip
 INTERNAL_SERVER_IP="192.168.10.2"
-TCP_ALLOW_PORTS_IN_SERVER="80,22,443" #acting as server (allow connections to these ports)
-TCP_ALLOW_PORTS_OUT_SERVER="80,22,443"
+TCP_ALLOW_PORTS_IN_SERVER="80,22,443,8080,3131" #acting as server (allow connections to these ports)
+TCP_ALLOW_PORTS_OUT_SERVER="80,22,443,8080,3131"
 UDP_ALLOW_PORTS_IN_SERVER="80"
 UDP_ALLOW_PORTS_OUT_SERVER="80"
 
@@ -140,8 +140,8 @@ iptables -A blockin -i $EXTERNAL  -p tcp -m multiport --dports $BLOCK_PORTS_IN -
 iptables -A blockin -i $EXTERNAL  -p tcp -m multiport --sports 0:1023 -m state --state NEW -j DROP
 iptables -A blockin -i $EXTERNAL  -p udp -m multiport --sports 0:1023 -m state --state NEW -j DROP
 #drop SYN packets to high ports
-iptables -A blockin -i $EXTERNAL  -p tcp -m multiport ! --dports 0:1023 -m state --state NEW -j DROP
-iptables -A blockin -i $EXTERNAL  -p udp -m multiport ! --dports 0:1023 -m state --state NEW -j DROP
+#iptables -A blockin -i $EXTERNAL  -p tcp -m multiport ! --dports 0:1023 -m state --state NEW -j DROP
+#iptables -A blockin -i $EXTERNAL  -p udp -m multiport ! --dports 0:1023 -m state --state NEW -j DROP
 #Block all external traffic directed to ports 32768 – 32775, 137 – 139, TCP ports 111 and 515. 
 iptables -A blockin -i $EXTERNAL  -p tcp -m multiport --dports 32768:32775,137:139,111,515 -j DROP
 iptables -A blockin -i $EXTERNAL  -p udp -m multiport --dports 32768:32775,137:139 -j DROP
@@ -170,8 +170,8 @@ iptables -A blockout  -i $INTERNAL -p tcp -m multiport --dports $BLOCK_PORTS_OUT
 iptables -A blockout  -i $INTERNAL -p tcp -m multiport --sports 0:1023 -m state --state NEW -j DROP
 iptables -A blockout  -i $INTERNAL -p udp -m multiport --sports 0:1023 -m state --state NEW -j DROP
 #drop SYN packets to high ports
-iptables -A blockout  -i $INTERNAL -p tcp -m multiport ! --dports 0:1023 -m state --state NEW -j DROP
-iptables -A blockout  -i $INTERNAL -p udp -m multiport ! --dports 0:1023 -m state --state NEW -j DROP
+#iptables -A blockout  -i $INTERNAL -p tcp -m multiport ! --dports 0:1023 -m state --state NEW -j DROP
+#iptables -A blockout  -i $INTERNAL -p udp -m multiport ! --dports 0:1023 -m state --state NEW -j DROP
 #Block all external traffic directed to ports 32768 – 32775, 137 – 139, TCP ports 111 and 515. 
 iptables -A blockout  -i $INTERNAL -p tcp -m multiport --dports 32768:32775,137:139,111,515 -j DROP
 iptables -A blockout  -i $INTERNAL -p udp -m multiport --dports 32768:32775,137:139 -j DROP
